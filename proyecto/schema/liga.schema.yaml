@@ -1,15 +1,15 @@
 openapi: 3.0.0
 info:
-  title: LaLiga Prediction API
-  description: API for managing and predicting LaLiga match results.
+  title: API de Predicción de LaLiga
+  description: API para gestionar y predecir los resultados de los partidos de LaLiga y observar datos históricos
   version: 1.0.0
 servers:
   - url: http://localhost:3000
-    description: Local server
+    description: Servidor local
 
 components:
   schemas:
-    User:
+    Usuario:
       type: object
       properties:
         id:
@@ -20,49 +20,67 @@ components:
           type: string
         password:
           type: string
-    Match:
+    Partido:
       type: object
       properties:
         id:
           type: string
-        date:
+        fecha:
           type: string
           format: date-time
-        teamHome:
+        equipoCasa:
           type: string
-        teamAway:
+        equipoVisitante:
           type: string
-        scoreHome:
+        golesCasa:
           type: integer
-        scoreAway:
+        golesVisitante:
           type: integer
-        status:
+        estado:
           type: string
-        stats:
+        estadisticas:
           type: object
-    Prediction:
+    Prediccion:
       type: object
       properties:
-        matchId:
+        partidoId:
           type: string
-        predictedResult:
+        resultadoPredicho:
+          type: string
+    Equipo:
+      type: object
+      properties:
+        id:
+          type: string
+        nombre:
+          type: string
+        logo:
+          type: string
+    Jugador:
+      type: object
+      properties:
+        id:
+          type: string
+        nombre:
+          type: string
+        equipoId:
           type: string
 
 paths:
-  /users/register:
+  /usuarios/registro:
     post:
-      summary: Register a new user
+      summary: Registrar un nuevo usuario
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/Usuario'
       responses:
         '201':
-          description: User registered successfully
-  /users/login:
+          description: Usuario registrado exitosamente
+  /usuarios/login:
     post:
-      summary: User login
+      summary: Iniciar sesión de usuario
       requestBody:
         content:
           application/json:
@@ -75,32 +93,32 @@ paths:
                   type: string
       responses:
         '200':
-          description: User logged in successfully
-  /matches:
+          description: Usuario autenticado exitosamente
+  /partidos:
     get:
-      summary: Get all matches
+      summary: Obtener todos los partidos
       responses:
         '200':
-          description: List of matches
+          description: Lista de partidos
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Match'
+                  $ref: '#/components/schemas/Partido'
     post:
-      summary: Add a new match
+      summary: Añadir un nuevo partido
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Match'
+              $ref: '#/components/schemas/Partido'
       responses:
         '201':
-          description: Match created successfully
-  /matches/{id}:
+          description: Partido creado exitosamente
+  /partidos/{id}:
     get:
-      summary: Get a specific match by ID
+      summary: Obtener un partido específico por ID
       parameters:
         - name: id
           in: path
@@ -109,13 +127,13 @@ paths:
             type: string
       responses:
         '200':
-          description: Match details
+          description: Detalles del partido
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Match'
+                $ref: '#/components/schemas/Partido'
     put:
-      summary: Update a match
+      summary: Actualizar un partido
       parameters:
         - name: id
           in: path
@@ -126,12 +144,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Match'
+              $ref: '#/components/schemas/Partido'
       responses:
         '200':
-          description: Match updated successfully
+          description: Partido actualizado exitosamente
     delete:
-      summary: Delete a match
+      summary: Eliminar un partido
       parameters:
         - name: id
           in: path
@@ -140,62 +158,10 @@ paths:
             type: string
       responses:
         '204':
-          description: Match deleted successfully
-  /predictions:
-    post:
-      summary: Get prediction for a match
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                matchId:
-                  type: string
-      responses:
-        '200':
-          description: Prediction result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Prediction'
-  /teams:
+          description: Partido eliminado exitosamente
+  /partidos/{id}/estadisticas:
     get:
-      summary: Get all teams
-      responses:
-        '200':
-          description: List of teams
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    logo:
-                      type: string
-    post:
-      summary: Add a new team
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                logo:
-                  type: string
-      responses:
-        '201':
-          description: Team created successfully
-  /teams/{id}:
-    get:
-      summary: Get a specific team by ID
+      summary: Obtener estadísticas de un partido específico por ID
       parameters:
         - name: id
           in: path
@@ -204,7 +170,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Team details
+          description: Estadísticas del partido
           content:
             application/json:
               schema:
@@ -212,79 +178,51 @@ paths:
                 properties:
                   id:
                     type: string
-                  name:
-                    type: string
-                  logo:
-                    type: string
-    put:
-      summary: Update a team
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
+                  estadisticas:
+                    type: object
+  /predicciones:
+    post:
+      summary: Obtener predicción para un partido
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                name:
-                  type: string
-                logo:
+                partidoId:
                   type: string
       responses:
         '200':
-          description: Team updated successfully
-    delete:
-      summary: Delete a team
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Team deleted successfully
-  /players:
+          description: Resultado de la predicción
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prediccion'
+  /equipos:
     get:
-      summary: Get all players
+      summary: Obtener todos los equipos
       responses:
         '200':
-          description: List of players
+          description: Lista de equipos
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    teamId:
-                      type: string
+                  $ref: '#/components/schemas/Equipo'
     post:
-      summary: Add a new player
+      summary: Añadir un nuevo equipo
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                teamId:
-                  type: string
+              $ref: '#/components/schemas/Equipo'
       responses:
         '201':
-          description: Player created successfully
-  /players/{id}:
+          description: Equipo creado exitosamente
+  /equipos/{id}:
     get:
-      summary: Get a specific player by ID
+      summary: Obtener un equipo específico por ID
       parameters:
         - name: id
           in: path
@@ -293,20 +231,13 @@ paths:
             type: string
       responses:
         '200':
-          description: Player details
+          description: Detalles del equipo
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  teamId:
-                    type: string
+                $ref: '#/components/schemas/Equipo'
     put:
-      summary: Update a player
+      summary: Actualizar un equipo
       parameters:
         - name: id
           in: path
@@ -317,17 +248,12 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                teamId:
-                  type: string
+              $ref: '#/components/schemas/Equipo'
       responses:
         '200':
-          description: Player updated successfully
+          description: Equipo actualizado exitosamente
     delete:
-      summary: Delete a player
+      summary: Eliminar un equipo
       parameters:
         - name: id
           in: path
@@ -336,4 +262,69 @@ paths:
             type: string
       responses:
         '204':
-          description: Player deleted successfully
+          description: Equipo eliminado exitosamente
+  /jugadores:
+    get:
+      summary: Obtener todos los jugadores
+      responses:
+        '200':
+          description: Lista de jugadores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Jugador'
+    post:
+      summary: Añadir un nuevo jugador
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Jugador'
+      responses:
+        '201':
+          description: Jugador creado exitosamente
+  /jugadores/{id}:
+    get:
+      summary: Obtener un jugador específico por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalles del jugador
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Jugador'
+    put:
+      summary: Actualizar un jugador
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Jugador'
+      responses:
+        '200':
+          description: Jugador actualizado exitosamente
+    delete:
+      summary: Eliminar un jugador
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Jugador eliminado exitosamente
