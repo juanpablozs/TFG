@@ -69,6 +69,17 @@ components:
           type: string
         logo:
           type: string
+        jugadores:
+          type: array
+          items:
+            type: object
+            properties:
+              playerId:
+                type: string
+              name:
+                type: string
+              position:
+                type: string
     Jugador:
       type: object
       properties:
@@ -77,6 +88,10 @@ components:
         nombre:
           type: string
         equipoId:
+          type: string
+        equipoNombre:
+          type: string
+        posicion:
           type: string
 
 paths:
@@ -476,6 +491,36 @@ paths:
             application/json:
               example:
                 message: "Error al eliminar el equipo"
+  /equipos/{id}/jugadores:
+    get:
+      summary: Obtener todos los jugadores de un equipo específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de jugadores del equipo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Jugador'
+        '404':
+          description: Equipo no encontrado
+          content:
+            application/json:
+              example:
+                message: "Equipo no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al obtener los jugadores del equipo"
   /jugadores:
     get:
       summary: Obtener todos los jugadores
