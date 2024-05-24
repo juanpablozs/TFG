@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API de Predicción de LaLiga
-  description: API para gestionar y predecir los resultados de los partidos de LaLiga y observar datos históricos
+  description: API para gestionar y predecir los resultados de los partidos de LaLiga.
   version: 1.0.0
 servers:
   - url: http://localhost:3000
@@ -43,9 +43,11 @@ components:
     Prediccion:
       type: object
       properties:
-        partidoId:
+        equipoCasa:
           type: string
-        resultadoPredicho:
+        equipoVisitante:
+          type: string
+        resultadoPrediccion:
           type: string
     Equipo:
       type: object
@@ -189,7 +191,9 @@ paths:
             schema:
               type: object
               properties:
-                partidoId:
+                equipoCasa:
+                  type: string
+                equipoVisitante:
                   type: string
       responses:
         '200':
