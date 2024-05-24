@@ -49,6 +49,17 @@ components:
           type: string
         resultadoPrediccion:
           type: string
+        enlaces:
+          type: array
+          items:
+            type: object
+            properties:
+              rel:
+                type: string
+              method:
+                type: string
+              href:
+                type: string
     Equipo:
       type: object
       properties:
