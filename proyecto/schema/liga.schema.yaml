@@ -80,6 +80,22 @@ paths:
       responses:
         '201':
           description: Usuario registrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+        '400':
+          description: Solicitud incorrecta
+          content:
+            application/json:
+              example:
+                message: "Datos de usuario no válidos"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al registrar el usuario"
   /usuarios/login:
     post:
       summary: Iniciar sesión de usuario
@@ -96,6 +112,28 @@ paths:
       responses:
         '200':
           description: Usuario autenticado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+        '400':
+          description: Solicitud incorrecta
+          content:
+            application/json:
+              example:
+                message: "Credenciales no válidas"
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              example:
+                message: "Correo electrónico o contraseña incorrectos"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al iniciar sesión del usuario"
   /partidos:
     get:
       summary: Obtener todos los partidos
@@ -108,6 +146,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Partido'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al obtener los partidos"
     post:
       summary: Añadir un nuevo partido
       requestBody:
@@ -118,6 +162,22 @@ paths:
       responses:
         '201':
           description: Partido creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partido'
+        '400':
+          description: Solicitud incorrecta
+          content:
+            application/json:
+              example:
+                message: "Datos del partido no válidos"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al crear el partido"
   /partidos/{id}:
     get:
       summary: Obtener un partido específico por ID
@@ -134,6 +194,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Partido'
+        '404':
+          description: Partido no encontrado
+          content:
+            application/json:
+              example:
+                message: "Partido no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al obtener el partido"
     put:
       summary: Actualizar un partido
       parameters:
@@ -150,6 +222,28 @@ paths:
       responses:
         '200':
           description: Partido actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partido'
+        '400':
+          description: Solicitud incorrecta
+          content:
+            application/json:
+              example:
+                message: "Datos del partido no válidos"
+        '404':
+          description: Partido no encontrado
+          content:
+            application/json:
+              example:
+                message: "Partido no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al actualizar el partido"
     delete:
       summary: Eliminar un partido
       parameters:
@@ -161,6 +255,18 @@ paths:
       responses:
         '204':
           description: Partido eliminado exitosamente
+        '404':
+          description: Partido no encontrado
+          content:
+            application/json:
+              example:
+                message: "Partido no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al eliminar el partido"
   /partidos/{id}/estadisticas:
     get:
       summary: Obtener estadísticas de un partido específico por ID
@@ -182,6 +288,18 @@ paths:
                     type: string
                   estadisticas:
                     type: object
+        '404':
+          description: Partido no encontrado
+          content:
+            application/json:
+              example:
+                message: "Partido no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al obtener las estadísticas del partido"
   /predicciones:
     post:
       summary: Obtener predicción para un partido
@@ -202,6 +320,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Prediccion'
+        '400':
+          description: Solicitud incorrecta
+          content:
+            application/json:
+              example:
+                message: "Datos de equipos no válidos"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al obtener la predicción"
   /equipos:
     get:
       summary: Obtener todos los equipos
@@ -214,6 +344,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Equipo'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al obtener los equipos"
     post:
       summary: Añadir un nuevo equipo
       requestBody:
@@ -224,6 +360,22 @@ paths:
       responses:
         '201':
           description: Equipo creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipo'
+        '400':
+          description: Solicitud incorrecta
+          content:
+            application/json:
+              example:
+                message: "Datos del equipo no válidos"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al crear el equipo"
   /equipos/{id}:
     get:
       summary: Obtener un equipo específico por ID
@@ -240,6 +392,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Equipo'
+        '404':
+          description: Equipo no encontrado
+          content:
+            application/json:
+              example:
+                message: "Equipo no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al obtener el equipo"
     put:
       summary: Actualizar un equipo
       parameters:
@@ -256,6 +420,28 @@ paths:
       responses:
         '200':
           description: Equipo actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipo'
+        '400':
+          description: Solicitud incorrecta
+          content:
+            application/json:
+              example:
+                message: "Datos del equipo no válidos"
+        '404':
+          description: Equipo no encontrado
+          content:
+            application/json:
+              example:
+                message: "Equipo no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al actualizar el equipo"
     delete:
       summary: Eliminar un equipo
       parameters:
@@ -267,6 +453,18 @@ paths:
       responses:
         '204':
           description: Equipo eliminado exitosamente
+        '404':
+          description: Equipo no encontrado
+          content:
+            application/json:
+              example:
+                message: "Equipo no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al eliminar el equipo"
   /jugadores:
     get:
       summary: Obtener todos los jugadores
@@ -279,6 +477,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Jugador'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al obtener los jugadores"
     post:
       summary: Añadir un nuevo jugador
       requestBody:
@@ -289,6 +493,22 @@ paths:
       responses:
         '201':
           description: Jugador creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Jugador'
+        '400':
+          description: Solicitud incorrecta
+          content:
+            application/json:
+              example:
+                message: "Datos del jugador no válidos"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al crear el jugador"
   /jugadores/{id}:
     get:
       summary: Obtener un jugador específico por ID
@@ -305,6 +525,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Jugador'
+        '404':
+          description: Jugador no encontrado
+          content:
+            application/json:
+              example:
+                message: "Jugador no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al obtener el jugador"
     put:
       summary: Actualizar un jugador
       parameters:
@@ -321,6 +553,28 @@ paths:
       responses:
         '200':
           description: Jugador actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Jugador'
+        '400':
+          description: Solicitud incorrecta
+          content:
+            application/json:
+              example:
+                message: "Datos del jugador no válidos"
+        '404':
+          description: Jugador no encontrado
+          content:
+            application/json:
+              example:
+                message: "Jugador no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al actualizar el jugador"
     delete:
       summary: Eliminar un jugador
       parameters:
@@ -332,3 +586,15 @@ paths:
       responses:
         '204':
           description: Jugador eliminado exitosamente
+        '404':
+          description: Jugador no encontrado
+          content:
+            application/json:
+              example:
+                message: "Jugador no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al eliminar el jugador"
