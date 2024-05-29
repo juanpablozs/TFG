@@ -1,6 +1,6 @@
 const axios = require('axios');
 const { MongoClient } = require('mongodb');
-require('dotenv').config(); // Cargar variables de entorno desde el archivo .env
+require('dotenv').config();
 
 const apiKey = process.env.API_FOOTBALL_KEY;
 const mongoUri = process.env.MONGO_URI;
@@ -24,7 +24,7 @@ async function fetchPlayersForTeam(teamId) {
     });
 
     players.push(...response.data.response);
-    totalPages = response.data.paging.total; // Asume que la respuesta contiene un objeto `paging` con `total` páginas
+    totalPages = response.data.paging.total;
     page++;
   }
 
