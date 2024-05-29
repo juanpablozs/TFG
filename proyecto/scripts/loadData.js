@@ -5,6 +5,32 @@ require('dotenv').config(); // Cargar variables de entorno desde el archivo .env
 const apiKey = process.env.API_FOOTBALL_KEY;
 const mongoUri = process.env.MONGO_URI;
 
+async function fetchPlayersForTeam(teamId) {
+  let players = [];
+  let page = 1;
+  let totalPages = 1;
+
+  while (page <= totalPages) {
+    const response = await axios.get(`https://api-football-v1.p.rapidapi.com/v3/players`, {
+      headers: {
+        'x-rapidapi-key': apiKey,
+        'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+      },
+      params: {
+        team: teamId,
+        season: 2023,
+        page: page
+      }
+    });
+
+    players.push(...response.data.response);
+    totalPages = response.data.paging.total; // Asume que la respuesta contiene un objeto `paging` con `total` páginas
+    page++;
+  }
+
+  return players;
+}
+
 async function fetchData() {
   try {
     const teamsResponse = await axios.get('https://api-football-v1.p.rapidapi.com/v3/teams?league=140&season=2023', {
@@ -23,22 +49,35 @@ async function fetchData() {
     });
     const matches = matchesResponse.data.response;
 
-    const players = [];
-    for (const team of teams) {
-      const playersResponse = await axios.get(`https://api-football-v1.p.rapidapi.com/v3/players?team=${team.team.id}&season=2023`, {
+    const matchesWithStats = await Promise.all(matches.map(async match => {
+      const statsResponse = await axios.get(`https://api-football-v1.p.rapidapi.com/v3/fixtures/statistics`, {
         headers: {
           'x-rapidapi-key': apiKey,
           'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+        },
+        params: {
+          fixture: match.fixture.id
         }
       });
-      players.push(...playersResponse.data.response);
+      return { ...match, statistics: statsResponse.data.response };
+    }));
+
+    const players = [];
+    for (const team of teams) {
+      const teamPlayers = await fetchPlayersForTeam(team.team.id);
+      players.push(...teamPlayers);
     }
 
-    return { teams, matches, players };
+    return { teams, matches: matchesWithStats, players };
   } catch (error) {
     console.error('Error fetching data:', error);
     throw error;
   }
+}
+
+function getStatValue(statistics, type) {
+  const stat = statistics.find(stat => stat.type === type);
+  return stat ? stat.value : 'N/A';
 }
 
 async function loadToMongo(data) {
@@ -53,33 +92,53 @@ async function loadToMongo(data) {
     await teamsCollection.insertMany(data.teams.map(team => ({
       teamId: team.team.id,
       name: team.team.name,
+      code: team.team.code,
+      country: team.team.country,
+      founded: team.team.founded,
+      national: team.team.national,
       logo: team.team.logo,
-      players: data.players.filter(player => player.statistics && player.statistics[0].team.id === team.team.id).map(player => ({
-        playerId: player.player.id,
-        name: player.player.name,
-        position: player.statistics[0].games.position
-      }))
+      venue: {
+        id: team.venue.id,
+        name: team.venue.name,
+        address: team.venue.address,
+        city: team.venue.city,
+        capacity: team.venue.capacity,
+        surface: team.venue.surface,
+        image: team.venue.image
+      }
     })));
 
     await matchesCollection.insertMany(data.matches.map(match => ({
       matchId: match.fixture.id,
+      referee: match.fixture.referee,
+      timezone: match.fixture.timezone,
       date: match.fixture.date,
-      homeTeamId: match.teams.home.id,
-      awayTeamId: match.teams.away.id,
-      homeGoals: match.goals.home,
-      awayGoals: match.goals.away,
-      statistics: {
-        possession: match.statistics && match.statistics[0] && match.statistics[0].type === 'Possession' ? match.statistics[0].value : 'N/A',
-        shotsOnTarget: match.statistics && match.statistics[0] && match.statistics[0].type === 'Shots on Target' ? match.statistics[0].value : 0,
-        fouls: match.statistics && match.statistics[0] && match.statistics[0].type === 'Fouls' ? match.statistics[0].value : 0,
-        yellowCards: match.statistics && match.statistics[0] && match.statistics[0].type === 'Yellow Cards' ? match.statistics[0].value : 0,
-        redCards: match.statistics && match.statistics[0] && match.statistics[0].type === 'Red Cards' ? match.statistics[0].value : 0
-      }
+      timestamp: match.fixture.timestamp,
+      periods: match.fixture.periods,
+      venue: match.fixture.venue,
+      status: match.fixture.status,
+      league: match.league,
+      teams: match.teams,
+      goals: match.goals,
+      score: match.score,
+      statistics: match.statistics.map(stat => ({
+        team: stat.team,
+        stats: stat.statistics
+      }))
     })));
 
     await playersCollection.insertMany(data.players.map(player => ({
       playerId: player.player.id,
       name: player.player.name,
+      firstname: player.player.firstname,
+      lastname: player.player.lastname,
+      age: player.player.age,
+      birth: player.player.birth,
+      nationality: player.player.nationality,
+      height: player.player.height,
+      weight: player.player.weight,
+      injured: player.player.injured,
+      photo: player.player.photo,
       teamId: player.statistics[0].team.id,
       teamName: player.statistics[0].team.name,
       position: player.statistics[0].games.position
