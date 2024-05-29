@@ -1,43 +1,48 @@
 const axios = require('axios');
 const { MongoClient } = require('mongodb');
-require('dotenv').config();
+require('dotenv').config(); // Cargar variables de entorno desde el archivo .env
 
 const apiKey = process.env.API_FOOTBALL_KEY;
 const mongoUri = process.env.MONGO_URI;
 
 async function fetchData() {
-  const teamsResponse = await axios.get('https://api-football-v1.p.rapidapi.com/v3/teams?league=140&season=2023', {
-    headers: {
-      'x-rapidapi-key': apiKey,
-      'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
-    }
-  });
-  const teams = teamsResponse.data.response;
-
-  const matchesResponse = await axios.get('https://api-football-v1.p.rapidapi.com/v3/fixtures?league=140&season=2023', {
-    headers: {
-      'x-rapidapi-key': apiKey,
-      'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
-    }
-  });
-  const matches = matchesResponse.data.response;
-
-  const players = [];
-  for (const team of teams) {
-    const playersResponse = await axios.get(`https://api-football-v1.p.rapidapi.com/v3/players?team=${team.team.id}&season=2023`, {
+  try {
+    const teamsResponse = await axios.get('https://api-football-v1.p.rapidapi.com/v3/teams?league=140&season=2023', {
       headers: {
         'x-rapidapi-key': apiKey,
         'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
       }
     });
-    players.push(...playersResponse.data.response);
-  }
+    const teams = teamsResponse.data.response;
 
-  return { teams, matches, players };
+    const matchesResponse = await axios.get('https://api-football-v1.p.rapidapi.com/v3/fixtures?league=140&season=2023', {
+      headers: {
+        'x-rapidapi-key': apiKey,
+        'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+      }
+    });
+    const matches = matchesResponse.data.response;
+
+    const players = [];
+    for (const team of teams) {
+      const playersResponse = await axios.get(`https://api-football-v1.p.rapidapi.com/v3/players?team=${team.team.id}&season=2023`, {
+        headers: {
+          'x-rapidapi-key': apiKey,
+          'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+        }
+      });
+      players.push(...playersResponse.data.response);
+    }
+
+    return { teams, matches, players };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
 }
 
 async function loadToMongo(data) {
-  const client = new MongoClient(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
+  const client = new MongoClient(mongoUri);
   try {
     await client.connect();
     const db = client.db('footballDB');
@@ -49,7 +54,7 @@ async function loadToMongo(data) {
       teamId: team.team.id,
       name: team.team.name,
       logo: team.team.logo,
-      players: data.players.filter(player => player.statistics[0].team.id === team.team.id).map(player => ({
+      players: data.players.filter(player => player.statistics && player.statistics[0].team.id === team.team.id).map(player => ({
         playerId: player.player.id,
         name: player.player.name,
         position: player.statistics[0].games.position
@@ -64,11 +69,11 @@ async function loadToMongo(data) {
       homeGoals: match.goals.home,
       awayGoals: match.goals.away,
       statistics: {
-        possession: match.statistics.possession,
-        shotsOnTarget: match.statistics.shotsOnTarget,
-        fouls: match.statistics.fouls,
-        yellowCards: match.statistics.yellowCards,
-        redCards: match.statistics.redCards
+        possession: match.statistics && match.statistics[0] && match.statistics[0].type === 'Possession' ? match.statistics[0].value : 'N/A',
+        shotsOnTarget: match.statistics && match.statistics[0] && match.statistics[0].type === 'Shots on Target' ? match.statistics[0].value : 0,
+        fouls: match.statistics && match.statistics[0] && match.statistics[0].type === 'Fouls' ? match.statistics[0].value : 0,
+        yellowCards: match.statistics && match.statistics[0] && match.statistics[0].type === 'Yellow Cards' ? match.statistics[0].value : 0,
+        redCards: match.statistics && match.statistics[0] && match.statistics[0].type === 'Red Cards' ? match.statistics[0].value : 0
       }
     })));
 
@@ -81,14 +86,21 @@ async function loadToMongo(data) {
     })));
 
     console.log('Data loaded successfully');
+  } catch (error) {
+    console.error('Error loading data into MongoDB:', error);
+    throw error;
   } finally {
     await client.close();
   }
 }
 
 async function main() {
-  const data = await fetchData();
-  await loadToMongo(data);
+  try {
+    const data = await fetchData();
+    await loadToMongo(data);
+  } catch (error) {
+    console.error('Error in main function:', error);
+  }
 }
 
 main().catch(console.error);
