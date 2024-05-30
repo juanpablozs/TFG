@@ -43,31 +43,22 @@ async function fetchPlayersForTeam(teamId) {
     players.push(...data.response);
     totalPages = data.paging.total;
     page++;
+
+    if (page <= totalPages) {
+      await delay(1000);
+    }
   }
 
   return players;
 }
 
-async function fetchData() {
+async function fetchTeamsAndPlayers(startIndex = 0, endIndex = 5) {
   try {
     const teamsData = await fetchWithRetry('https://api-football-v1.p.rapidapi.com/v3/teams', {
       league: 140,
       season: 2023
     });
-    const teams = teamsData.response;
-
-    const matchesData = await fetchWithRetry('https://api-football-v1.p.rapidapi.com/v3/fixtures', {
-      league: 140,
-      season: 2023
-    });
-    const matches = matchesData.response;
-
-    const matchesWithStats = await Promise.all(matches.map(async match => {
-      const statsData = await fetchWithRetry('https://api-football-v1.p.rapidapi.com/v3/fixtures/statistics', {
-        fixture: match.fixture.id
-      });
-      return { ...match, statistics: statsData.response };
-    }));
+    const teams = teamsData.response.slice(startIndex, endIndex);
 
     const players = [];
     for (const team of teams) {
@@ -75,16 +66,11 @@ async function fetchData() {
       players.push(...teamPlayers);
     }
 
-    return { teams, matches: matchesWithStats, players };
+    return { teams, players };
   } catch (error) {
     console.error('Error fetching data:', error);
     throw error;
   }
-}
-
-function getStatValue(statistics, type) {
-  const stat = statistics.find(stat => stat.type === type);
-  return stat ? stat.value : 'N/A';
 }
 
 async function loadToMongo(data) {
@@ -93,7 +79,6 @@ async function loadToMongo(data) {
     await client.connect();
     const db = client.db('footballDB');
     const teamsCollection = db.collection('teams');
-    const matchesCollection = db.collection('matches');
     const playersCollection = db.collection('players');
 
     await teamsCollection.insertMany(data.teams.map(team => ({
@@ -115,44 +100,6 @@ async function loadToMongo(data) {
       }
     })));
 
-    await matchesCollection.insertMany(data.matches.map(match => ({
-      matchId: match.fixture.id,
-      referee: match.fixture.referee,
-      timezone: match.fixture.timezone,
-      date: match.fixture.date,
-      timestamp: match.fixture.timestamp,
-      periods: match.fixture.periods,
-      venue: match.fixture.venue,
-      status: match.fixture.status,
-      league: match.league,
-      teams: match.teams,
-      goals: match.goals,
-      score: match.score,
-      statistics: match.statistics.map(stat => ({
-        team: stat.team,
-        stats: {
-          shotsOnGoal: getStatValue(stat.statistics, 'Shots on Goal'),
-          shotsOffGoal: getStatValue(stat.statistics, 'Shots off Goal'),
-          totalShots: getStatValue(stat.statistics, 'Total Shots'),
-          blockedShots: getStatValue(stat.statistics, 'Blocked Shots'),
-          shotsInsideBox: getStatValue(stat.statistics, 'Shots insidebox'),
-          shotsOutsideBox: getStatValue(stat.statistics, 'Shots outsidebox'),
-          fouls: getStatValue(stat.statistics, 'Fouls'),
-          cornerKicks: getStatValue(stat.statistics, 'Corner Kicks'),
-          offsides: getStatValue(stat.statistics, 'Offsides'),
-          possession: getStatValue(stat.statistics, 'Ball Possession'),
-          yellowCards: getStatValue(stat.statistics, 'Yellow Cards'),
-          redCards: getStatValue(stat.statistics, 'Red Cards'),
-          goalkeeperSaves: getStatValue(stat.statistics, 'Goalkeeper Saves'),
-          totalPasses: getStatValue(stat.statistics, 'Total passes'),
-          accuratePasses: getStatValue(stat.statistics, 'Passes accurate'),
-          passPercentage: getStatValue(stat.statistics, 'Passes %'),
-          expectedGoals: getStatValue(stat.statistics, 'expected_goals'),
-          goalsPrevented: getStatValue(stat.statistics, 'goals_prevented')
-        }
-      }))
-    })));
-
     await playersCollection.insertMany(data.players.map(player => ({
       playerId: player.player.id,
       name: player.player.name,
@@ -170,7 +117,7 @@ async function loadToMongo(data) {
       position: player.statistics[0].games.position
     })));
 
-    console.log('Data loaded successfully');
+    console.log('Teams and players loaded successfully');
   } catch (error) {
     console.error('Error loading data into MongoDB:', error);
     throw error;
@@ -181,7 +128,9 @@ async function loadToMongo(data) {
 
 async function main() {
   try {
-    const data = await fetchData();
+    const startIndex = parseInt(process.argv[2], 10) || 0;
+    const endIndex = parseInt(process.argv[3], 10) || 5;
+    const data = await fetchTeamsAndPlayers(startIndex, endIndex);
     await loadToMongo(data);
   } catch (error) {
     console.error('Error in main function:', error);
