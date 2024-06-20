@@ -28,7 +28,7 @@ async function fetchWithRetry(url, params, retries = 3, delayMs = 60000) {
   }
 }
 
-async function fetchMatchesAndStatistics(startIndex = 0, endIndex = 20) { // Reduced endIndex to limit requests
+async function fetchMatchesAndStatistics(startIndex = 0, endIndex = 10) { // Reduced endIndex to limit requests
   try {
     const matchesData = await fetchWithRetry('https://api-football-v1.p.rapidapi.com/v3/fixtures', {
       league: 140,
