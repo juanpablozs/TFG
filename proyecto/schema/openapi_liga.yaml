@@ -20,6 +20,10 @@ components:
           type: string
         password:
           type: string
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
     Partido:
       type: object
       properties:
@@ -40,6 +44,10 @@ components:
           type: string
         estadisticas:
           type: object
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
     Prediccion:
       type: object
       properties:
@@ -49,17 +57,10 @@ components:
           type: string
         resultadoPrediccion:
           type: string
-        enlaces:
+        links:
           type: array
           items:
-            type: object
-            properties:
-              rel:
-                type: string
-              method:
-                type: string
-              href:
-                type: string
+            $ref: '#/components/schemas/Link'
     Equipo:
       type: object
       properties:
@@ -80,6 +81,10 @@ components:
                 type: string
               position:
                 type: string
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
     Jugador:
       type: object
       properties:
@@ -92,6 +97,19 @@ components:
         equipoNombre:
           type: string
         posicion:
+          type: string
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    Link:
+      type: object
+      properties:
+        rel:
+          type: string
+        href:
+          type: string
+        method:
           type: string
 
 paths:
