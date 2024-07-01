@@ -82,7 +82,7 @@ router.post('/recuperar', async (req, res) => {
       service: 'gmail',
       auth: {
         user: process.env.EMAIL,
-        pass: process.env.EMAIL_PASSWORD
+        pass: process.env.APP_PASSWORD
       }
     });
 
@@ -93,10 +93,17 @@ router.post('/recuperar', async (req, res) => {
       text: `Para restablecer su contraseña, haga clic en el siguiente enlace: ${process.env.BASE_URL}/usuarios/reset/${token}`
     };
 
-    await transporter.sendMail(mailOptions);
-
-    res.json({ message: 'Correo de recuperación enviado' });
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error al enviar el correo:', error);
+        return res.status(500).json({ message: 'Error al enviar el correo de recuperación' });
+      } else {
+        console.log('Correo enviado:', info.response);
+        res.json({ message: 'Correo de recuperación enviado' });
+      }
+    });
   } catch (error) {
+    console.error('Error en la ruta de recuperación:', error);
     res.status(500).json({ message: 'Error al enviar el correo de recuperación' });
   } finally {
     await client.close();
