@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const { MongoClient, ObjectId } = require('mongodb');
-const authorize = require('../middleware/authorize');
+require('dotenv').config();
 const mongoUri = process.env.MONGO_URI;
 
 const generateLinks = (resource, id) => {
@@ -26,11 +26,12 @@ router.post('/registro', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await db.collection('usuarios').insertOne({ username, email, password: hashedPassword });
 
-    const user = result.ops[0];
+    const user = await db.collection('usuarios').findOne({ _id: result.insertedId });
     user.links = generateLinks('/usuarios', user._id);
 
     res.status(201).json(user);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Error al registrar el usuario' });
   } finally {
     await client.close();
@@ -101,7 +102,6 @@ router.post('/recuperar', async (req, res) => {
     await client.close();
   }
 });
-
 
 router.post('/reset/:token', async (req, res) => {
   const { token } = req.params;
