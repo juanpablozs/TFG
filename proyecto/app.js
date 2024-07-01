@@ -6,10 +6,6 @@ require('dotenv').config();
 
 const indexRouter = require('./routes/index');
 const usuariosRouter = require('./routes/usuarios');
-const partidosRouter = require('./routes/partidos');
-const prediccionesRouter = require('./routes/predicciones');
-const equiposRouter = require('./routes/equipos');
-const jugadoresRouter = require('./routes/jugadores');
 
 const app = express();
 
@@ -24,9 +20,5 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/usuarios', usuariosRouter);
-app.use('/partidos', partidosRouter);
-app.use('/predicciones', prediccionesRouter);
-app.use('/equipos', equiposRouter);
-app.use('/jugadores', jugadoresRouter);
 
 module.exports = app;
