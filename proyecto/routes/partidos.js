@@ -3,6 +3,15 @@ const router = express.Router();
 const Partido = require('../models/partido');
 const authenticateToken = require('../middleware/auth');
 
+const createLinks = (req, id) => {
+  return [
+    { rel: 'self', method: 'GET', href: `${req.protocol}://${req.get('host')}${req.baseUrl}/${id}` },
+    { rel: 'update', method: 'PUT', href: `${req.protocol}://${req.get('host')}${req.baseUrl}/${id}` },
+    { rel: 'delete', method: 'DELETE', href: `${req.protocol}://${req.get('host')}${req.baseUrl}/${id}` },
+    { rel: 'statistics', method: 'GET', href: `${req.protocol}://${req.get('host')}${req.baseUrl}/${id}/estadisticas` }
+  ];
+};
+
 router.get('/', async (req, res) => {
   try {
     const { page = 1, limit = 10, team, date } = req.query;
@@ -26,8 +35,14 @@ router.get('/', async (req, res) => {
 
     const count = await Partido.countDocuments(query);
 
+    const partidosWithLinks = partidos.map(partido => {
+      const partidoObject = partido.toObject();
+      partidoObject.links = createLinks(req, partido._id);
+      return partidoObject;
+    });
+
     res.json({
-      partidos,
+      partidos: partidosWithLinks,
       totalPages: Math.ceil(count / limit),
       currentPage: page
     });
@@ -53,7 +68,9 @@ router.post('/', authenticateToken, async (req, res) => {
 
   try {
     const newPartido = await partido.save();
-    res.status(201).json(newPartido);
+    const partidoObject = newPartido.toObject();
+    partidoObject.links = createLinks(req, newPartido._id);
+    res.status(201).json(partidoObject);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -63,7 +80,9 @@ router.get('/:id', async (req, res) => {
   try {
     const partido = await Partido.findById(req.params.id).select('matchId date teams goals statistics');
     if (!partido) return res.status(404).json({ message: 'Partido no encontrado' });
-    res.json(partido);
+    const partidoObject = partido.toObject();
+    partidoObject.links = createLinks(req, partido._id);
+    res.json(partidoObject);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -86,7 +105,9 @@ router.put('/:id', authenticateToken, async (req, res) => {
     }, { new: true }).select('matchId date teams goals statistics');
 
     if (!updatedPartido) return res.status(404).json({ message: 'Partido no encontrado' });
-    res.json(updatedPartido);
+    const partidoObject = updatedPartido.toObject();
+    partidoObject.links = createLinks(req, updatedPartido._id);
+    res.json(partidoObject);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
