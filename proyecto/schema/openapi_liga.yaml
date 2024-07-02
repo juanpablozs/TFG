@@ -29,21 +29,92 @@ components:
       properties:
         id:
           type: string
-        fecha:
+        date:
           type: string
           format: date-time
-        equipoCasa:
-          type: string
-        equipoVisitante:
-          type: string
-        golesCasa:
-          type: integer
-        golesVisitante:
-          type: integer
-        estado:
-          type: string
-        estadisticas:
+        teams:
           type: object
+          properties:
+            home:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                logo:
+                  type: string
+                winner:
+                  type: boolean
+            away:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                logo:
+                  type: string
+                winner:
+                  type: boolean
+        goals:
+          type: object
+          properties:
+            home:
+              type: integer
+            away:
+              type: integer
+        statistics:
+          type: array
+          items:
+            type: object
+            properties:
+              team:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  logo:
+                    type: string
+              stats:
+                type: object
+                properties:
+                  shotsOnGoal:
+                    type: integer
+                  shotsOffGoal:
+                    type: integer
+                  totalShots:
+                    type: integer
+                  blockedShots:
+                    type: integer
+                  shotsInsideBox:
+                    type: integer
+                  shotsOutsideBox:
+                    type: integer
+                  fouls:
+                    type: integer
+                  cornerKicks:
+                    type: integer
+                  offsides:
+                    type: integer
+                  possession:
+                    type: string
+                  yellowCards:
+                    type: integer
+                  redCards:
+                    type: integer
+                  goalkeeperSaves:
+                    type: integer
+                  totalPasses:
+                    type: integer
+                  accuratePasses:
+                    type: integer
+                  passPercentage:
+                    type: string
+                  expectedGoals:
+                    type: string
         links:
           type: array
           items:
@@ -178,72 +249,6 @@ paths:
             application/json:
               example:
                 message: "Error al iniciar sesión del usuario"
-  /usuarios/recuperar:
-    post:
-      summary: Enviar correo de recuperación de contraseña
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-      responses:
-        '200':
-          description: Correo de recuperación enviado
-          content:
-            application/json:
-              example:
-                message: "Correo de recuperación enviado"
-        '404':
-          description: Usuario no encontrado
-          content:
-            application/json:
-              example:
-                message: "Usuario no encontrado"
-        '500':
-          description: Error interno del servidor
-          content:
-            application/json:
-              example:
-                message: "Error al enviar el correo de recuperación"
-  /usuarios/reset/{token}:
-    post:
-      summary: Restablecer la contraseña
-      parameters:
-        - name: token
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                password:
-                  type: string
-      responses:
-        '200':
-          description: Contraseña actualizada correctamente
-          content:
-            application/json:
-              example:
-                message: "Contraseña actualizada correctamente"
-        '400':
-          description: Token inválido o expirado
-          content:
-            application/json:
-              example:
-                message: "Token inválido o expirado"
-        '500':
-          description: Error interno del servidor
-          content:
-            application/json:
-              example:
-                message: "Error al restablecer la contraseña"
   /partidos:
     get:
       summary: Obtener todos los partidos
