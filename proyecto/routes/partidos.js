@@ -36,9 +36,21 @@ router.get('/', async (req, res) => {
   }
 });
 
-
 router.post('/', authenticateToken, async (req, res) => {
-  const partido = new Partido(req.body);
+  const { matchId, date, teams, goals, statistics } = req.body;
+
+  if (!matchId || !teams || !teams.home || !teams.away || !goals || goals.home === undefined || goals.away === undefined) {
+    return res.status(400).json({ message: 'Faltan campos obligatorios' });
+  }
+
+  const partido = new Partido({
+    matchId,
+    date,
+    teams,
+    goals,
+    statistics
+  });
+
   try {
     const newPartido = await partido.save();
     res.status(201).json(newPartido);
@@ -58,8 +70,21 @@ router.get('/:id', async (req, res) => {
 });
 
 router.put('/:id', authenticateToken, async (req, res) => {
+  const { matchId, date, teams, goals, statistics } = req.body;
+
+  if (!matchId || !teams || !teams.home || !teams.away || !goals || goals.home === undefined || goals.away === undefined) {
+    return res.status(400).json({ message: 'Faltan campos obligatorios' });
+  }
+
   try {
-    const updatedPartido = await Partido.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('matchId date teams goals statistics');
+    const updatedPartido = await Partido.findByIdAndUpdate(req.params.id, {
+      matchId,
+      date,
+      teams,
+      goals,
+      statistics
+    }, { new: true }).select('matchId date teams goals statistics');
+
     if (!updatedPartido) return res.status(404).json({ message: 'Partido no encontrado' });
     res.json(updatedPartido);
   } catch (err) {

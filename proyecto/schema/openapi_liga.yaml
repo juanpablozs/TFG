@@ -26,6 +26,10 @@ components:
             $ref: '#/components/schemas/Link'
     Partido:
       type: object
+      required:
+        - matchId
+        - teams
+        - goals
       properties:
         id:
           type: string
@@ -34,9 +38,16 @@ components:
           format: date-time
         teams:
           type: object
+          required:
+            - home
+            - away
           properties:
             home:
               type: object
+              required:
+                - id
+                - name
+                - winner
               properties:
                 id:
                   type: integer
@@ -48,6 +59,10 @@ components:
                   type: boolean
             away:
               type: object
+              required:
+                - id
+                - name
+                - winner
               properties:
                 id:
                   type: integer
@@ -59,6 +74,9 @@ components:
                   type: boolean
         goals:
           type: object
+          required:
+            - home
+            - away
           properties:
             home:
               type: integer
