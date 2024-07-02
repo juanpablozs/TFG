@@ -123,4 +123,18 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+router.get('/:id/estadisticas', async (req, res) => {
+    try {
+      const partido = await Partido.findById(req.params.id).select('statistics');
+      if (!partido) return res.status(404).json({ message: 'Partido no encontrado' });
+      res.json({
+        id: partido._id,
+        estadisticas: partido.statistics,
+        links: createLinks(req, partido._id)
+      });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+});
+
 module.exports = router;
