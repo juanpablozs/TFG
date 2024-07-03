@@ -152,13 +152,42 @@ components:
             $ref: '#/components/schemas/Link'
     Equipo:
       type: object
+      required:
+        - teamId
+        - name
+        - venue
       properties:
         id:
           type: string
-        nombre:
+        teamId:
+          type: integer
+        name:
           type: string
+        code:
+          type: string
+        country:
+          type: string
+        founded:
+          type: integer
         logo:
           type: string
+        venue:
+          type: object
+          required:
+            - name
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            address:
+              type: string
+            city:
+              type: string
+            capacity:
+              type: integer
+            image:
+              type: string
         jugadores:
           type: array
           items:
@@ -174,6 +203,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Link'
+
     Jugador:
       type: object
       properties:

@@ -58,6 +58,11 @@ router.post('/', authenticateToken, async (req, res) => {
     return res.status(400).json({ message: 'Faltan campos obligatorios' });
   }
 
+  const existingPartido = await Partido.findOne({ matchId });
+  if (existingPartido) {
+    return res.status(400).json({ message: 'El partido con este ID ya existe' });
+  }
+
   const partido = new Partido({
     matchId,
     date,
@@ -89,21 +94,8 @@ router.get('/:id', async (req, res) => {
 });
 
 router.put('/:id', authenticateToken, async (req, res) => {
-  const { matchId, date, teams, goals, statistics } = req.body;
-
-  if (!matchId || !teams || !teams.home || !teams.away || !goals || goals.home === undefined || goals.away === undefined) {
-    return res.status(400).json({ message: 'Faltan campos obligatorios' });
-  }
-
   try {
-    const updatedPartido = await Partido.findByIdAndUpdate(req.params.id, {
-      matchId,
-      date,
-      teams,
-      goals,
-      statistics
-    }, { new: true }).select('matchId date teams goals statistics');
-
+    const updatedPartido = await Partido.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('matchId date teams goals statistics');
     if (!updatedPartido) return res.status(404).json({ message: 'Partido no encontrado' });
     const partidoObject = updatedPartido.toObject();
     partidoObject.links = createLinks(req, updatedPartido._id);
@@ -124,17 +116,17 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 });
 
 router.get('/:id/estadisticas', async (req, res) => {
-    try {
-      const partido = await Partido.findById(req.params.id).select('statistics');
-      if (!partido) return res.status(404).json({ message: 'Partido no encontrado' });
-      res.json({
-        id: partido._id,
-        estadisticas: partido.statistics,
-        links: createLinks(req, partido._id)
-      });
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
+  try {
+    const partido = await Partido.findById(req.params.id).select('statistics');
+    if (!partido) return res.status(404).json({ message: 'Partido no encontrado' });
+    res.json({
+      id: partido._id,
+      estadisticas: partido.statistics,
+      links: createLinks(req, partido._id)
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 module.exports = router;
