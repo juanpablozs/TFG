@@ -23,6 +23,13 @@ router.post('/registro', async (req, res) => {
   try {
     await client.connect();
     const db = client.db();
+
+    // Verificar si el correo ya está registrado
+    const existingUser = await db.collection('usuarios').findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'El correo ya está registrado' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await db.collection('usuarios').insertOne({ username, email, password: hashedPassword });
 
