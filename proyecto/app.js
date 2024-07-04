@@ -9,6 +9,7 @@ const indexRouter = require('./routes/index');
 const usuariosRouter = require('./routes/usuarios');
 const partidosRouter = require('./routes/partidos');
 const equiposRouter = require('./routes/equipos');
+const jugadoresRouter = require('./routes/jugadores');
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/', indexRouter);
 app.use('/usuarios', usuariosRouter);
 app.use('/partidos', partidosRouter);
 app.use('/equipos', equiposRouter);
+app.use('/jugadores', jugadoresRouter);
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
