@@ -14,13 +14,38 @@ const createLinks = (req, id) => {
 
 router.get('/', async (req, res) => {
   try {
-    const jugadores = await Jugador.find().select('-injured');
+    const { page = 1, limit = 10, name, teamName, position } = req.query;
+
+    const query = {};
+    if (name) {
+      query.name = { $regex: name, $options: 'i' };
+    }
+    if (teamName) {
+      query.teamName = { $regex: teamName, $options: 'i' };
+    }
+    if (position) {
+      query.position = { $regex: position, $options: 'i' };
+    }
+
+    const jugadores = await Jugador.find(query)
+      .select('-injured')
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .exec();
+
+    const count = await Jugador.countDocuments(query);
+
     const jugadoresWithLinks = jugadores.map(jugador => {
       const jugadorObject = jugador.toObject();
       jugadorObject.links = createLinks(req, jugador._id);
       return jugadorObject;
     });
-    res.json(jugadoresWithLinks);
+
+    res.json({
+      jugadores: jugadoresWithLinks,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page
+    });
   } catch (err) {
     res.status(500).json({ message: 'Error al obtener los jugadores' });
   }
