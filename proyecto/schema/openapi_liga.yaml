@@ -206,21 +206,53 @@ components:
 
     Jugador:
       type: object
+      required:
+        - playerId
+        - name
+        - position
+        - age
+        - teamId
       properties:
         id:
           type: string
-        nombre:
+        playerId:
+          type: integer
+        name:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        age:
+          type: integer
+        birth:
+          type: object
+          properties:
+            date:
+              type: string
+            place:
+              type: string
+            country:
+              type: string
+        nationality:
+          type: string
+        height:
+          type: string
+        weight:
+          type: string
+        photo:
           type: string
         equipoId:
           type: string
         equipoNombre:
           type: string
-        posicion:
+        position:
           type: string
         links:
           type: array
           items:
             $ref: '#/components/schemas/Link'
+
     Link:
       type: object
       properties:
