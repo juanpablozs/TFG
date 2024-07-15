@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Equipo = require('../models/equipo');
+const Jugador = require('../models/jugador');
 const authenticateToken = require('../middleware/auth');
 
 const createLinks = (req, id) => {
@@ -106,6 +107,28 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     res.status(204).send();
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+router.get('/:id/jugadores', async (req, res) => {
+  try {
+    const equipo = await Equipo.findById(req.params.id);
+    if (!equipo) return res.status(404).json({ message: 'Equipo no encontrado' });
+
+    const jugadores = await Jugador.find({ teamId: equipo.teamId }).select('-injured');
+    const jugadoresWithLinks = jugadores.map(jugador => {
+      const jugadorObject = jugador.toObject();
+      jugadorObject.links = [
+        { rel: 'self', method: 'GET', href: `${req.protocol}://${req.get('host')}/jugadores/${jugador._id}` },
+        { rel: 'update', method: 'PUT', href: `${req.protocol}://${req.get('host')}/jugadores/${jugador._id}` },
+        { rel: 'delete', method: 'DELETE', href: `${req.protocol}://${req.get('host')}/jugadores/${jugador._id}` }
+      ];
+      return jugadorObject;
+    });
+
+    res.json(jugadoresWithLinks);
+  } catch (err) {
+    res.status(500).json({ message: 'Error al obtener los jugadores del equipo' });
   }
 });
 
