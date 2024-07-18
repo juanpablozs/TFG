@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Jugador = require('../models/jugador');
 const Equipo = require('../models/equipo');
-const authenticateToken = require('../middleware/auth');
+const { authenticateToken, authorizeRoles } = require('../middleware/auth');
 
 const createLinks = (req, id) => {
   return [
@@ -51,7 +51,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   const { playerId, teamId, name, position, age } = req.body;
 
   if (!playerId || !teamId || !name || !position || !age) {
@@ -100,7 +100,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const updatedJugador = await Jugador.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('-injured');
     if (!updatedJugador) return res.status(404).json({ message: 'Jugador no encontrado' });
@@ -112,7 +112,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const deletedJugador = await Jugador.findByIdAndDelete(req.params.id).select('-injured');
     if (!deletedJugador) return res.status(404).json({ message: 'Jugador no encontrado' });

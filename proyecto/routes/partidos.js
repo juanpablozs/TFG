@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Partido = require('../models/partido');
-const authenticateToken = require('../middleware/auth');
+const { authenticateToken, authorizeRoles } = require('../middleware/auth');
 
 const createLinks = (req, id) => {
   return [
@@ -51,7 +51,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   const { matchId, date, teams, goals, statistics } = req.body;
 
   if (!matchId || !teams || !teams.home || !teams.away || !goals || goals.home === undefined || goals.away === undefined) {
@@ -93,7 +93,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const updatedPartido = await Partido.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('matchId date teams goals statistics');
     if (!updatedPartido) return res.status(404).json({ message: 'Partido no encontrado' });
@@ -105,7 +105,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const deletedPartido = await Partido.findByIdAndDelete(req.params.id).select('matchId date teams goals statistics');
     if (!deletedPartido) return res.status(404).json({ message: 'Partido no encontrado' });
