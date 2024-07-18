@@ -24,7 +24,6 @@ router.post('/registro', async (req, res) => {
     await client.connect();
     const db = client.db();
 
-    // Verificar si el correo ya está registrado
     const existingUser = await db.collection('usuarios').findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'El correo ya está registrado' });
