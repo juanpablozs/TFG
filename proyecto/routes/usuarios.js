@@ -17,7 +17,7 @@ const generateLinks = (resource, id) => {
 };
 
 router.post('/registro', async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, role = 'user' } = req.body;  // Default role is 'user'
   const client = new MongoClient(mongoUri);
 
   try {
@@ -30,7 +30,7 @@ router.post('/registro', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await db.collection('usuarios').insertOne({ username, email, password: hashedPassword });
+    const result = await db.collection('usuarios').insertOne({ username, email, password: hashedPassword, role });
 
     const user = await db.collection('usuarios').findOne({ _id: result.insertedId });
     user.links = generateLinks('/usuarios', user._id);
