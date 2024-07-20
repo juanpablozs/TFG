@@ -17,7 +17,7 @@ const generateLinks = (resource, id) => {
 };
 
 router.post('/registro', async (req, res) => {
-  const { username, email, password, role = 'user' } = req.body;  // Default role is 'user'
+  const { username, email, password, role = 'user' } = req.body;
   const client = new MongoClient(mongoUri);
 
   try {
