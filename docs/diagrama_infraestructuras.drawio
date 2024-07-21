@@ -1,0 +1,25 @@
+<mxfile host="app.diagrams.net" modified="2024-07-21T20:47:04.568Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36" etag="2IwcyGydwM4xvaNs0BuI" version="24.7.1" type="device">
+  <diagram name="Página-1" id="DhhZ8hrAWui_NFFiM7C7">
+    <mxGraphModel dx="1434" dy="738" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="YbFIi-r7XpE4IatM20iv-1" value="Internet" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="260" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="YbFIi-r7XpE4IatM20iv-2" value="" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="60" width="530" height="450" as="geometry" />
+        </mxCell>
+        <mxCell id="YbFIi-r7XpE4IatM20iv-3" value="" style="image;html=1;image=img/lib/clip_art/networking/Firewall_02_128x128.png" vertex="1" parent="1">
+          <mxGeometry x="310" y="245" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="YbFIi-r7XpE4IatM20iv-4" value="" style="image;html=1;image=img/lib/clip_art/computers/Server_Tower_128x128.png" vertex="1" parent="1">
+          <mxGeometry x="445" y="180" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="YbFIi-r7XpE4IatM20iv-5" value="" style="image;html=1;image=img/lib/clip_art/computers/Server_Tower_128x128.png" vertex="1" parent="1">
+          <mxGeometry x="445" y="330" width="80" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
