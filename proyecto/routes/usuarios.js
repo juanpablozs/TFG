@@ -8,6 +8,8 @@ const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 const mongoUri = process.env.MONGO_URI;
 
+const { authenticateToken } = require('../middleware/auth');
+
 const generateLinks = (resource, id) => {
   return [
     { rel: 'self', href: `${resource}/${id}`, method: 'GET' },
@@ -136,6 +138,92 @@ router.post('/reset/:token', async (req, res) => {
     res.json({ message: 'Contraseña actualizada correctamente' });
   } catch (error) {
     res.status(500).json({ message: 'Error al restablecer la contraseña' });
+  } finally {
+    await client.close();
+  }
+});
+
+router.get('/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const client = new MongoClient(mongoUri);
+
+  if (req.user.id !== id) {
+    return res.status(403).json({ message: 'No tienes permiso para ver este usuario' });
+  }
+
+  try {
+    await client.connect();
+    const db = client.db();
+    const user = await db.collection('usuarios').findOne({ _id: new ObjectId(id) }, { projection: { email: 1, username: 1 } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener el usuario' });
+  } finally {
+    await client.close();
+  }
+});
+
+router.put('/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { username, email } = req.body;
+  const client = new MongoClient(mongoUri);
+
+  if (req.user.id !== id) {
+    return res.status(403).json({ message: 'No tienes permiso para actualizar este usuario' });
+  }
+
+  const updateData = {};
+  if (username) updateData.username = username;
+  if (email) updateData.email = email;
+
+  try {
+    await client.connect();
+    const db = client.db();
+
+    const updatedUser = await db.collection('usuarios').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updateData }
+    );
+
+    if (updatedUser.matchedCount === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const user = await db.collection('usuarios').findOne({ _id: new ObjectId(id) });
+    res.json({ message: 'Usuario actualizado correctamente', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al actualizar el usuario' });
+  } finally {
+    await client.close();
+  }
+});
+
+router.delete('/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const client = new MongoClient(mongoUri);
+
+  if (req.user.id !== id) {
+    return res.status(403).json({ message: 'No tienes permiso para eliminar este usuario' });
+  }
+
+  try {
+    await client.connect();
+    const db = client.db();
+
+    const deletedUser = await db.collection('usuarios').deleteOne({ _id: new ObjectId(id) });
+
+    if (deletedUser.deletedCount === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    res.status(200).json({ message: 'Usuario eliminado correctamente' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al eliminar el usuario' });
   } finally {
     await client.close();
   }
