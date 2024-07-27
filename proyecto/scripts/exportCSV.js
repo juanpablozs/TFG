@@ -5,12 +5,12 @@ require('dotenv').config();
 
 const mongoUri = process.env.MONGO_URI;
 
-async function fetchMatches() {
+async function fetchMatches(collectionName) {
   const client = new MongoClient(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
   try {
     await client.connect();
     const db = client.db('footballDB');
-    const matches = await db.collection('matches').find({}).toArray();
+    const matches = await db.collection(collectionName).find({}).toArray();
     return matches;
   } catch (error) {
     console.error('Error fetching matches:', error);
@@ -132,16 +132,18 @@ function flattenMatch(match) {
 
 async function exportToCSV() {
   try {
-    const matches = await fetchMatches();
-    const flattenedMatches = matches.map(flattenMatch);
+    const matches2023 = await fetchMatches('matches');
+    const matches2022 = await fetchMatches('matches_2022');
+    const allMatches = [...matches2023, ...matches2022];
+    const flattenedMatches = allMatches.map(flattenMatch);
 
     const csvWriter = createCsvWriter({
-      path: 'data/matches.csv',
+      path: 'data/matches_ampliado.csv',
       header: Object.keys(flattenedMatches[0]).map(key => ({ id: key, title: key }))
     });
 
     await csvWriter.writeRecords(flattenedMatches);
-    console.log('Exported matches to data/matches.csv');
+    console.log('Exported matches to data/matches_ampliado.csv');
   } catch (error) {
     console.error('Error exporting to CSV:', error);
   }
