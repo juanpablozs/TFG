@@ -28,11 +28,11 @@ async function fetchWithRetry(url, params, retries = 3, delayMs = 60000) {
   }
 }
 
-async function fetchMatchesAndStatistics(startIndex = 0, endIndex = 10) { // Reduced endIndex to limit requests
+async function fetchMatchesAndStatistics(season, startIndex = 0, endIndex = 10) {
   try {
     const matchesData = await fetchWithRetry('https://api-football-v1.p.rapidapi.com/v3/fixtures', {
       league: 140,
-      season: 2023
+      season: season
     });
     const matches = matchesData.response.slice(startIndex, endIndex);
 
@@ -55,12 +55,13 @@ function getStatValue(statistics, type) {
   return stat ? stat.value : 'N/A';
 }
 
-async function loadToMongo(matches) {
+async function loadToMongo(matches, season) {
   const client = new MongoClient(mongoUri);
   try {
     await client.connect();
     const db = client.db('footballDB');
-    const matchesCollection = db.collection('matches');
+    const collectionName = `matches_${season}`;
+    const matchesCollection = db.collection(collectionName);
 
     await matchesCollection.insertMany(matches.map(match => ({
       matchId: match.fixture.id,
@@ -100,7 +101,7 @@ async function loadToMongo(matches) {
       }))
     })));
 
-    console.log('Matches and statistics loaded successfully');
+    console.log(`Matches and statistics for season ${season} loaded successfully`);
   } catch (error) {
     console.error('Error loading data into MongoDB:', error);
     throw error;
@@ -111,10 +112,11 @@ async function loadToMongo(matches) {
 
 async function main() {
   try {
+    const season = 2022;
     const startIndex = parseInt(process.argv[2], 10) || 0;
     const endIndex = parseInt(process.argv[3], 10) || 20;
-    const matches = await fetchMatchesAndStatistics(startIndex, endIndex);
-    await loadToMongo(matches);
+    const matches = await fetchMatchesAndStatistics(season, startIndex, endIndex);
+    await loadToMongo(matches, season);
   } catch (error) {
     console.error('Error in main function:', error);
   }
