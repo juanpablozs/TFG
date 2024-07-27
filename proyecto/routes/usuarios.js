@@ -82,7 +82,7 @@ router.post('/recuperar', async (req, res) => {
     }
 
     const token = crypto.randomBytes(32).toString('hex');
-    const tokenExpiration = Date.now() + 3600000; // 1 hora
+    const tokenExpiration = Date.now() + 3600000;
 
     await db.collection('usuarios').updateOne({ email }, { $set: { resetToken: token, resetTokenExpiration: tokenExpiration } });
 
