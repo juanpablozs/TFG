@@ -29,26 +29,32 @@ function flattenMatch(match) {
 
   const flattenStats = (stats) => {
     const defaultStats = {
-      shotsOnGoal: 0,
-      shotsOffGoal: 0,
-      totalShots: 0,
-      blockedShots: 0,
-      shotsInsideBox: 0,
-      shotsOutsideBox: 0,
-      fouls: 0,
-      cornerKicks: 0,
-      offsides: 0,
-      possession: '0%',
-      yellowCards: 0,
-      redCards: 0,
-      goalkeeperSaves: 0,
-      totalPasses: 0,
-      accuratePasses: 0,
-      passPercentage: '0%',
-      expectedGoals: '0',
-      goalsPrevented: '0'
+      shotsOnGoal: null,
+      shotsOffGoal: null,
+      totalShots: null,
+      blockedShots: null,
+      shotsInsideBox: null,
+      shotsOutsideBox: null,
+      fouls: null,
+      cornerKicks: null,
+      offsides: null,
+      possession: null,
+      yellowCards: null,
+      redCards: null,
+      goalkeeperSaves: null,
+      totalPasses: null,
+      accuratePasses: null,
+      passPercentage: null,
+      expectedGoals: null,
+      goalsPrevented: null
     };
-    return { ...defaultStats, ...stats };
+
+    const sanitizedStats = {};
+    for (let key in stats) {
+      sanitizedStats[key] = stats[key] === 'N/A' ? null : stats[key];
+    }
+
+    return { ...defaultStats, ...sanitizedStats };
   };
 
   return {
@@ -138,12 +144,12 @@ async function exportToCSV() {
     const flattenedMatches = allMatches.map(flattenMatch);
 
     const csvWriter = createCsvWriter({
-      path: 'data/matches_ampliado.csv',
+      path: 'data/matches.csv',
       header: Object.keys(flattenedMatches[0]).map(key => ({ id: key, title: key }))
     });
 
     await csvWriter.writeRecords(flattenedMatches);
-    console.log('Exported matches to data/matches_ampliado.csv');
+    console.log('Exported matches to data/matches.csv');
   } catch (error) {
     console.error('Error exporting to CSV:', error);
   }
