@@ -21,11 +21,15 @@ async function fetchMatches(collectionName) {
 }
 
 function flattenMatch(match) {
-  const { matchId, referee, timezone, date, timestamp, periods, venue, status, league, teams, goals, score, statistics } = match;
-  const result = goals.home > goals.away ? 'Home Win' : goals.home < goals.away ? 'Away Win' : 'Draw';
+  const {
+    matchId, referee, timezone, date, timestamp, periods = {}, venue = {}, status = {}, league = {}, teams = {}, goals = {}, score = {}, statistics = []
+  } = match;
 
-  const homeStats = statistics.find(stat => stat.team.id === teams.home.id) || {};
-  const awayStats = statistics.find(stat => stat.team.id === teams.away.id) || {};
+  const result = teams.home && teams.home.winner === true ? 'Home Win' :
+                 teams.home && teams.home.winner === false ? 'Away Win' : 'Draw';
+
+  const homeStats = statistics.find(stat => stat.team.id === (teams.home && teams.home.id)) || {};
+  const awayStats = statistics.find(stat => stat.team.id === (teams.away && teams.away.id)) || {};
 
   const flattenStats = (stats) => {
     const defaultStats = {
@@ -78,24 +82,24 @@ function flattenMatch(match) {
     league_flag: league.flag,
     league_season: league.season,
     league_round: league.round,
-    home_team_id: teams.home.id,
-    home_team_name: teams.home.name,
-    home_team_logo: teams.home.logo,
-    home_team_winner: teams.home.winner,
-    away_team_id: teams.away.id,
-    away_team_name: teams.away.name,
-    away_team_logo: teams.away.logo,
-    away_team_winner: teams.away.winner,
+    home_team_id: teams.home && teams.home.id,
+    home_team_name: teams.home && teams.home.name,
+    home_team_logo: teams.home && teams.home.logo,
+    home_team_winner: teams.home && teams.home.winner,
+    away_team_id: teams.away && teams.away.id,
+    away_team_name: teams.away && teams.away.name,
+    away_team_logo: teams.away && teams.away.logo,
+    away_team_winner: teams.away && teams.away.winner,
     goals_home: goals.home,
     goals_away: goals.away,
-    halftime_home: score.halftime.home,
-    halftime_away: score.halftime.away,
-    fulltime_home: score.fulltime.home,
-    fulltime_away: score.fulltime.away,
-    extratime_home: score.extratime.home,
-    extratime_away: score.extratime.away,
-    penalty_home: score.penalty.home,
-    penalty_away: score.penalty.away,
+    halftime_home: score.halftime && score.halftime.home,
+    halftime_away: score.halftime && score.halftime.away,
+    fulltime_home: score.fulltime && score.fulltime.home,
+    fulltime_away: score.fulltime && score.fulltime.away,
+    extratime_home: score.extratime && score.extratime.home,
+    extratime_away: score.extratime && score.extratime.away,
+    penalty_home: score.penalty && score.penalty.home,
+    penalty_away: score.penalty && score.penalty.away,
     home_shotsOnGoal: flattenStats(homeStats.stats).shotsOnGoal,
     home_shotsOffGoal: flattenStats(homeStats.stats).shotsOffGoal,
     home_totalShots: flattenStats(homeStats.stats).totalShots,
@@ -140,7 +144,8 @@ async function exportToCSV() {
   try {
     const matches2023 = await fetchMatches('matches');
     const matches2022 = await fetchMatches('matches_2022');
-    const allMatches = [...matches2023, ...matches2022];
+    const matchesBundesliga = await fetchMatches('matches_bundesliga');
+    const allMatches = [...matches2023, ...matches2022, ...matchesBundesliga];
     const flattenedMatches = allMatches.map(flattenMatch);
 
     const csvWriter = createCsvWriter({
