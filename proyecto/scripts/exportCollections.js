@@ -26,6 +26,8 @@ async function main() {
     await exportCollection('teams', 'data/teams.json');
     await exportCollection('players', 'data/players.json');
     await exportCollection('matches', 'data/matches.json');
+    await exportCollection('matches_2022', 'data/matches_2022.json');
+    await exportCollection('matches_bundesliga', 'data/matches_bundesliga.json');
     console.log('All collections exported successfully');
   } catch (error) {
     console.error('Error in main function:', error);
