@@ -29,3 +29,4 @@ gb_model.fit(X_train, y_train)
 gb_predictions = gb_model.predict(X_test)
 print("Gradient Boosting Accuracy:", accuracy_score(y_test, gb_predictions))
 print(classification_report(y_test, gb_predictions))
+

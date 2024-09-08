@@ -1,46 +1,40 @@
+// routes/predicciones.js
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
-const joblib = require('joblib');
-const path = require('path');
-const modelPath = path.join(__dirname, '../models_prediction/match_result_model.pkl');
-const csv = require('csv-parser');
-const fs = require('fs');
-const { SVC } = require('sklearn/svm');
-const { StandardScaler } = require('sklearn/preprocessing');
-const { make_pipeline } = require('sklearn/utils');
+const axios = require('axios');
 
-// Cargar el modelo entrenado al iniciar el servidor
-let model;
-try {
-    model = joblib.load(modelPath);
-    console.log('Modelo cargado correctamente.');
-} catch (error) {
-    console.error('Error al cargar el modelo:', error.message);
-}
-
-// Helper para cargar los datos CSV
-async function loadCSVData(filePath) {
-    const data = [];
-    return new Promise((resolve, reject) => {
-        fs.createReadStream(filePath)
-            .pipe(csv())
-            .on('data', (row) => data.push(Object.values(row).map(Number)))
-            .on('end', () => resolve(data))
-            .on('error', (error) => reject(error));
-    });
-}
+// URL del servicio de Machine Learning en Python
+const ML_SERVICE_URL = 'http://localhost:5000';
 
 // Ruta para realizar predicciones
 router.post('/', authenticateToken, async (req, res) => {
     try {
         const features = req.body.features; // Las características de entrada del usuario deben ser pasadas como JSON
-        if (!model) {
-            return res.status(500).json({ message: 'Modelo no cargado, contacte al administrador' });
+
+        // Verificar si features está presente y tiene las propiedades esperadas
+        const requiredFeatures = [
+            'home_shotsOnGoal', 'home_shotsOffGoal', 'home_totalShots', 'home_blockedShots',
+            'home_shotsInsideBox', 'home_shotsOutsideBox', 'home_cornerKicks', 'home_goalkeeperSaves',
+            'home_totalPasses', 'home_accuratePasses', 'home_expectedGoals', 'away_shotsOnGoal',
+            'away_shotsOffGoal', 'away_totalShots', 'away_blockedShots', 'away_shotsInsideBox',
+            'away_shotsOutsideBox', 'away_cornerKicks', 'away_goalkeeperSaves', 'away_totalPasses',
+            'away_accuratePasses', 'away_expectedGoals'
+        ];
+
+        // Verificar que todas las características necesarias estén presentes
+        const missingFeatures = requiredFeatures.filter(f => !(f in features));
+        if (missingFeatures.length > 0) {
+            return res.status(400).json({ message: `Faltan características: ${missingFeatures.join(', ')}` });
         }
-        const prediction = model.predict([features]);
-        res.json({ prediction: prediction[0] });
+
+        // Enviar solicitud al servicio de ML
+        const response = await axios.post(`${ML_SERVICE_URL}/predict`, { features });
+
+        // Retornar la predicción al cliente
+        res.json({ prediction: response.data.prediction });
     } catch (error) {
+        console.error('Error al realizar la predicción:', error.message);
         res.status(500).json({ message: 'Error al realizar la predicción', error: error.message });
     }
 });
@@ -53,23 +47,10 @@ router.post('/actualizar', authenticateToken, async (req, res) => {
     }
 
     try {
-        // Cargar los datos de entrenamiento desde los archivos CSV
-        const X_train = await loadCSVData(path.join(__dirname, '../data/X_train.csv'));
-        const y_train = (await loadCSVData(path.join(__dirname, '../data/y_train.csv'))).flat(); // Flatten para obtener una sola dimensión
+        // Enviar solicitud al servicio de ML para reentrenar el modelo
+        const response = await axios.post(`${ML_SERVICE_URL}/retrain`);
 
-        // Crear un nuevo pipeline de SVM y normalización
-        const newModel = make_pipeline(new StandardScaler(), new SVC({ probability: true }));
-
-        // Reentrenar el modelo
-        newModel.fit(X_train, y_train);
-
-        // Guardar el nuevo modelo en el directorio de predicciones
-        joblib.dump(newModel, modelPath);
-
-        // Actualizar el modelo en memoria para predicciones futuras
-        model = newModel;
-
-        res.json({ message: 'Modelo reentrenado y actualizado correctamente.' });
+        res.json({ message: response.data.message });
     } catch (error) {
         console.error('Error al reentrenar el modelo:', error.message);
         res.status(500).json({ message: 'Error al reentrenar el modelo', error: error.message });
