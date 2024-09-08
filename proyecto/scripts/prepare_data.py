@@ -14,7 +14,7 @@ features = data[['home_shotsOnGoal', 'home_shotsOffGoal', 'home_totalShots',
                  'away_cornerKicks', 'away_goalkeeperSaves', 'away_totalPasses', 
                  'away_accuratePasses', 'away_expectedGoals']]
 
-imputer = SimpleImputer(strategy='mean')  # Puedes cambiar 'mean' por 'median', 'most_frequent', etc.
+imputer = SimpleImputer(strategy='mean')
 features_imputed = imputer.fit_transform(features)
 
 label_encoder = LabelEncoder()
