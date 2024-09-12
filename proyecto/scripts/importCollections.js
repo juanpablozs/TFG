@@ -29,6 +29,8 @@ async function main() {
     await importCollection('data/teams.json', 'teams');
     await importCollection('data/players.json', 'players');
     await importCollection('data/matches.json', 'matches');
+    await importCollection('data/matches_bundesliga.json', 'matches_bundesliga');
+    await importCollection('data/matches_2022.json', 'matches_2022');
     console.log('All collections imported successfully');
   } catch (error) {
     console.error('Error in main function:', error);
