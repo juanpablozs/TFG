@@ -39,14 +39,15 @@ def predict():
     try:
         data = request.json['features']
         
-        # Convertir los datos en una lista de listas (índices numéricos)
-        data_array = [list(data.values())]
+        # Convertir los datos en un DataFrame con los nombres de las columnas esperadas
+        data_df = pd.DataFrame([list(data.values())], columns=feature_columns)
 
-        print("Datos para predicción: ", data_array)
+        print("Datos organizados para predicción (con nombres de columnas):")
+        print(data_df)
 
         # Realizar la predicción
-        prediction = model.predict(data_array)
-        
+        prediction = model.predict(data_df)
+
         # Asegurarse de que la predicción sea de tipo nativo de Python (int en lugar de int64)
         prediction = int(prediction[0])
 
