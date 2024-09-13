@@ -7,19 +7,21 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-MODEL_PATH = 'models_prediction/match_result_model.pkl'
+MODEL_PATH = 'models_prediction/logistic_match_result_model.pkl'
+SCALER_PATH = 'models_prediction/scaler.pkl'
 
-# Cargar el modelo al iniciar el servicio
-def load_model():
-    if os.path.exists(MODEL_PATH):
+# Cargar el modelo y el scaler al iniciar el servicio
+def load_model_and_scaler():
+    if os.path.exists(MODEL_PATH) and os.path.exists(SCALER_PATH):
         model = joblib.load(MODEL_PATH)
-        print("Modelo cargado correctamente.")
+        scaler = joblib.load(SCALER_PATH)
+        print("Modelo y scaler cargados correctamente.")
     else:
-        model = None
-        print("Modelo no encontrado.")
-    return model
+        model, scaler = None, None
+        print("Modelo o scaler no encontrado.")
+    return model, scaler
 
-model = load_model()
+model, scaler = load_model_and_scaler()
 
 # Definir los nombres de las características esperadas
 feature_columns = ['home_shotsOnGoal', 'home_shotsOffGoal', 'home_totalShots',
@@ -45,8 +47,14 @@ def predict():
         print("Datos organizados para predicción (con nombres de columnas):")
         print(data_df)
 
+        # Aplicar el scaler a los datos de entrada
+        data_scaled = scaler.transform(data_df)
+
+        print("Datos escalados para predicción:")
+        print(data_scaled)
+
         # Realizar la predicción
-        prediction = model.predict(data_df)
+        prediction = model.predict(data_scaled)
 
         # Asegurarse de que la predicción sea de tipo nativo de Python (int en lugar de int64)
         prediction = int(prediction[0])
