@@ -34,7 +34,7 @@ feature_columns = ['home_shotsOnGoal', 'home_shotsOffGoal', 'home_totalShots',
                    'away_accuratePasses', 'away_expectedGoals']
 
 # Definir el mapeo de las predicciones numéricas a resultados comprensibles
-prediction_mapping = {0: 'Away Win', 1: 'Draw', 2: 'Home Win'}
+prediction_mapping = {0: 'Victoria Visitante', 1: 'Empate', 2: 'Victoria Local'}
 
 @app.route('/predict', methods=['POST'])
 def predict():
