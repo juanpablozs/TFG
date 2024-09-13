@@ -7,7 +7,6 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score, classification_report
 import pandas as pd
 
-# Cargar los datos de entrenamiento y prueba
 X_train = pd.read_csv('data/X_train.csv')
 X_test = pd.read_csv('data/X_test.csv')
 y_train = pd.read_csv('data/y_train.csv').values.ravel()
