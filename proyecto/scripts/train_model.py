@@ -11,13 +11,11 @@ y_test = pd.read_csv('data/y_test.csv').values.ravel()
 
 scaler = joblib.load('models_prediction/scaler.pkl')
 
-X_test_scaled = scaler.transform(X_test)
-
-logistic_model = LogisticRegression(solver='lbfgs', max_iter=500, class_weight='balanced')
+logistic_model = LogisticRegression(solver='lbfgs', max_iter=500)
 
 logistic_model.fit(X_train, y_train)
 
-y_pred_logistic = logistic_model.predict(X_test_scaled)
+y_pred_logistic = logistic_model.predict(X_test)
 
 print("Informe de clasificación Logistic Regression:")
 print(classification_report(y_test, y_pred_logistic))

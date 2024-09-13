@@ -1,14 +1,19 @@
+# ml_service.py
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import joblib
 import pandas as pd
 import os
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 
 app = Flask(__name__)
 CORS(app)
 
 MODEL_PATH = 'models_prediction/logistic_match_result_model.pkl'
 SCALER_PATH = 'models_prediction/scaler.pkl'
+DATA_PATH = 'data'
 
 def load_model_and_scaler():
     if os.path.exists(MODEL_PATH) and os.path.exists(SCALER_PATH):
@@ -49,14 +54,32 @@ def predict():
         print(data_scaled)
 
         prediction = model.predict(data_scaled)
-
         prediction = int(prediction[0])
-
         prediction_label = prediction_mapping.get(prediction, "Unknown")
 
         return jsonify({'prediction': prediction_label})
     except Exception as e:
         print(f"Error en predicción: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/retrain', methods=['POST'])
+def retrain():
+    try:
+
+        X_train = pd.read_csv(os.path.join(DATA_PATH, 'X_train.csv'))
+        y_train = pd.read_csv(os.path.join(DATA_PATH, 'y_train.csv')).values.ravel()
+
+        new_model = LogisticRegression(solver='lbfgs', max_iter=500)
+        new_model.fit(X_train, y_train)
+
+        joblib.dump(new_model, MODEL_PATH)
+
+        global model
+        model = new_model
+
+        return jsonify({'message': 'Modelo reentrenado y actualizado correctamente.'})
+    except Exception as e:
+        print(f"Error en reentrenar el modelo: {e}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
