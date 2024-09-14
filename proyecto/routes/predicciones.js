@@ -55,12 +55,19 @@ router.post('/actualizar', authenticateToken, async (req, res) => {
 
     try {
         const response = await axios.post(`${ML_SERVICE_URL}/retrain`);
+        const { message, classification_report, confusion_matrix, cross_val_mean } = response.data;
 
-        res.json({ message: response.data.message });
+        res.json({
+            message,
+            classification_report,
+            confusion_matrix,
+            cross_val_mean
+        });
     } catch (error) {
         console.error('Error al reentrenar el modelo:', error.message);
         res.status(500).json({ message: 'Error al reentrenar el modelo', error: error.message });
     }
 });
+
 
 module.exports = router;
