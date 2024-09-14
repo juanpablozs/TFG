@@ -4,7 +4,7 @@ const { authenticateToken } = require('../middleware/auth');
 const axios = require('axios');
 
 // URL del servicio de Machine Learning en Python
-const ML_SERVICE_URL = 'http://localhost:5000';
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL;
 
 function isValidNumber(value) {
     return typeof value === 'number' && !isNaN(value);
