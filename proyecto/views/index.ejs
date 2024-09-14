@@ -1,34 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+  <head>
     <title><%= title %></title>
-    <link rel="stylesheet" href="/stylesheets/style.css">
-</head>
-<body>
-    <header>
-        <nav class="auth-nav">
-            <a href="/usuarios/registro" class="button">Registro</a>
-            <a href="/usuarios/login" class="button">Iniciar Sesión</a>
-        </nav>
-
-        <h1><%= title %></h1>
-
-        <nav class="main-nav">
-            <a href="/equipos" class="main-link">Equipos</a>
-            <a href="/jugadores" class="main-link">Jugadores</a>
-            <a href="/partidos" class="main-link">Partidos</a>
-            <a href="/predicciones" class="main-link">Predicciones</a>
-        </nav>
-    </header>
-
-    <main>
-        <p>Bienvenido a la página de inicio del sistema de predicciones.</p>
-    </main>
-
-    <footer>
-        <p>&copy; 2024 Sistema de Predicciones de Partidos</p>
-    </footer>
-</body>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+  </body>
 </html>
