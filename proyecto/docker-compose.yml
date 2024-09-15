@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  node_app:
+    build: ./node_app
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./node_app/.env
+    volumes:
+      - ./node_app:/usr/src/app
+    depends_on:
+      - mongodb
+      - ml_service
+    networks:
+      - app_network
+    command: bash -c "node scripts/importCollections.js && npm start"
+
+  ml_service:
+    build: ./ml_service
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./ml_service:/usr/src/app
+    networks:
+      - app_network
+
+  mongodb:
+    image: mongo:5.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongo:/data/db
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
