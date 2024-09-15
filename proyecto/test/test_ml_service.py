@@ -95,3 +95,37 @@ def test_predict_away_win(client):
     json_data = response.get_json()
     assert 'prediction' in json_data
     assert json_data['prediction'] == 'Victoria Visitante'
+
+
+def test_predict_draw(client):
+    """Prueba para predecir un empate"""
+    payload = {
+        'features': {
+            'home_shotsOnGoal': 7,
+            'home_shotsOffGoal': 5,
+            'home_totalShots': 12,
+            'home_blockedShots': 2,
+            'home_shotsInsideBox': 8,
+            'home_shotsOutsideBox': 4,
+            'home_cornerKicks': 5,
+            'home_goalkeeperSaves': 3,
+            'home_totalPasses': 350,
+            'home_accuratePasses': 300,
+            'home_expectedGoals': 1.5,
+            'away_shotsOnGoal': 7,
+            'away_shotsOffGoal': 5,
+            'away_totalShots': 12,
+            'away_blockedShots': 2,
+            'away_shotsInsideBox': 8,
+            'away_shotsOutsideBox': 4,
+            'away_cornerKicks': 5,
+            'away_goalkeeperSaves': 3,
+            'away_totalPasses': 350,
+            'away_accuratePasses': 300,
+            'away_expectedGoals': 1.5
+        }
+    }
+
+    response = client.post('/predict', json=payload)
+    assert response.status_code == 200
+    assert response.json['prediction'] == 'Empate'
