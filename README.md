@@ -59,18 +59,18 @@ El contenedor node_app automáticamente ejecutará un script llamado "importColl
 1. Abrir Postman e importando rutas de prueba, como por ejemplo:
 
     - **Registrar un usuario**:
-    - **Método**: `POST`
-    - **URL**: `http://localhost:3000/usuarios/registro`
-    - **Cuerpo (JSON)**:
+        - **Método**: `POST`
+        - **URL**: `http://localhost:3000/usuarios/registro`
+        - **Cuerpo (JSON)**:
 
-    ```json
-    {
-        "username": "juanpablozs",
-        "email": "juanpablo.zuritasoto@usp.ceu.es",
-        "password": "jp12345678",
-        "role": "admin"
-    }
-    ```
+        ```json
+        {
+            "username": "juanpablozs",
+            "email": "juanpablo.zuritasoto@usp.ceu.es",
+            "password": "jp12345678",
+            "role": "admin"
+        }
+        ```
 
     - Por defecto, el rol es el de usuario, pero es conveniente usar el token de un usuario admin para ver todas las funcionalidades que proporciona el sistema.     
 
