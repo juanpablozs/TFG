@@ -42,9 +42,11 @@ Ejecutar los siguientes comandos en la terminal para iniciar los servicios con D
     docker-compose up
 
 Esto creará y ejecutará tres contenedores:
-    - node_app: La API principal de Express.js.
-    - ml_service: El servicio de predicción basado en Python.
-    - mongodb: La base de datos MongoDB para almacenar datos de usuarios, partidos, jugadores y equipos.
+
+- **node_app**: La API principal de Express.js.
+- **ml_service**: El servicio de predicción basado en Python.
+- **mongodb**: La base de datos MongoDB para almacenar datos de usuarios, partidos, jugadores y equipos.
+
 
 #### 4. Importar datos a MongoDB
 
@@ -56,22 +58,21 @@ El contenedor node_app automáticamente ejecutará un script llamado "importColl
 
 1. Abrir Postman e importando rutas de prueba, como por ejemplo:
 
-    Usuarios:
-    - Registrar un usuario:
-        - Método: POST
-        - URL: http://localhost:3000/usuarios/registro
-        - Cuerpo (JSON):
-   
-            ```json
-        {
-            "username": "juanpablozs",
-            "email": "juanpablo.zuritasoto@usp.ceu.es",
-            "password": "jp12345678",
-            "role": "admin"
-        }
-         
-            ```
-        - Por defecto el rol es el de usuario pero es conveniente para usar el token de un usuario admin y ver todas las funcionalidades que proporciona el sistema.     
+    - **Registrar un usuario**:
+    - **Método**: `POST`
+    - **URL**: `http://localhost:3000/usuarios/registro`
+    - **Cuerpo (JSON)**:
+
+    ```json
+    {
+        "username": "juanpablozs",
+        "email": "juanpablo.zuritasoto@usp.ceu.es",
+        "password": "jp12345678",
+        "role": "admin"
+    }
+    ```
+
+    - Por defecto, el rol es el de usuario, pero es conveniente usar el token de un usuario admin para ver todas las funcionalidades que proporciona el sistema.     
 
     Equipos:
     - Obtener todos los equipos:
