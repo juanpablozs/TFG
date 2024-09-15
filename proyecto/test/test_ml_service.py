@@ -23,10 +23,10 @@ def test_predict_missing_data(client):
         }
     }
     response = client.post('/predict', json=payload)
-    assert response.status_code == 500
+    assert response.status_code == 400
     json_data = response.get_json()
     assert 'error' in json_data
-    assert 'Error en predicción' in json_data['error']
+    assert 'Faltan las siguientes características' in json_data['error']
 
 def test_predict_home_win(client):
     """Prueba para una victoria local (home win)"""

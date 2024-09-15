@@ -7,7 +7,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
 
 app = Flask(__name__)
 CORS(app)
@@ -42,17 +41,17 @@ prediction_mapping = {0: 'Victoria Visitante', 1: 'Empate', 2: 'Victoria Local'}
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        data = request.json['features']
-        
-        data_df = pd.DataFrame([list(data.values())], columns=feature_columns)
+        data = request.json.get('features', None)
+        if not data:
+            return jsonify({'error': 'Datos faltantes o formato incorrecto en la solicitud'}), 400
 
-        print("Datos organizados para predicción (con nombres de columnas):")
-        print(data_df)
+        missing_features = [feature for feature in feature_columns if feature not in data]
+        if missing_features:
+            return jsonify({'error': f'Faltan las siguientes características: {", ".join(missing_features)}'}), 400
 
-        data_scaled = scaler.transform(data_df)
+        data_values = pd.DataFrame([data], columns=feature_columns).values
 
-        print("Datos escalados para predicción:")
-        print(data_scaled)
+        data_scaled = scaler.transform(data_values)
 
         prediction = model.predict(data_scaled)
         prediction = int(prediction[0])
@@ -63,16 +62,17 @@ def predict():
         print(f"Error en predicción: {e}")
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/retrain', methods=['POST'])
 def retrain():
     try:
-
-        X_train = pd.read_csv(os.path.join(DATA_PATH, 'X_train.csv'))
+        X_train = pd.read_csv(os.path.join(DATA_PATH, 'X_train.csv')).values
         y_train = pd.read_csv(os.path.join(DATA_PATH, 'y_train.csv')).values.ravel()
-        X_test = pd.read_csv(os.path.join(DATA_PATH, 'X_test.csv'))
+        X_test = pd.read_csv(os.path.join(DATA_PATH, 'X_test.csv')).values
         y_test = pd.read_csv(os.path.join(DATA_PATH, 'y_test.csv')).values.ravel()
 
         new_model = LogisticRegression(solver='lbfgs', max_iter=500)
+
         new_model.fit(X_train, y_train)
 
         y_pred = new_model.predict(X_test)
