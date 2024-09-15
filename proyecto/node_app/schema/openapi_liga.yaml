@@ -203,7 +203,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-
     Jugador:
       type: object
       required:
@@ -427,7 +426,7 @@ paths:
             application/json:
               example:
                 message: "Datos del partido no válidos"
-        '404':
+          '404':
           description: Partido no encontrado
           content:
             application/json:
@@ -823,3 +822,140 @@ paths:
             application/json:
               example:
                 message: "Error al eliminar el jugador"
+  /predicciones:
+    post:
+      summary: Realizar una predicción de partido
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                features:
+                  type: object
+                  required:
+                    - home_shotsOnGoal
+                    - home_shotsOffGoal
+                    - home_totalShots
+                    - home_blockedShots
+                    - home_shotsInsideBox
+                    - home_shotsOutsideBox
+                    - home_cornerKicks
+                    - home_goalkeeperSaves
+                    - home_totalPasses
+                    - home_accuratePasses
+                    - home_expectedGoals
+                    - away_shotsOnGoal
+                    - away_shotsOffGoal
+                    - away_totalShots
+                    - away_blockedShots
+                    - away_shotsInsideBox
+                    - away_shotsOutsideBox
+                    - away_cornerKicks
+                    - away_goalkeeperSaves
+                    - away_totalPasses
+                    - away_accuratePasses
+                    - away_expectedGoals
+                  properties:
+                    home_shotsOnGoal:
+                      type: number
+                    home_shotsOffGoal:
+                      type: number
+                    home_totalShots:
+                      type: number
+                    home_blockedShots:
+                      type: number
+                    home_shotsInsideBox:
+                      type: number
+                    home_shotsOutsideBox:
+                      type: number
+                    home_cornerKicks:
+                      type: number
+                    home_goalkeeperSaves:
+                      type: number
+                    home_totalPasses:
+                      type: number
+                    home_accuratePasses:
+                      type: number
+                    home_expectedGoals:
+                      type: number
+                    away_shotsOnGoal:
+                      type: number
+                    away_shotsOffGoal:
+                      type: number
+                    away_totalShots:
+                      type: number
+                    away_blockedShots:
+                      type: number
+                    away_shotsInsideBox:
+                      type: number
+                    away_shotsOutsideBox:
+                      type: number
+                    away_cornerKicks:
+                      type: number
+                    away_goalkeeperSaves:
+                      type: number
+                    away_totalPasses:
+                      type: number
+                    away_accuratePasses:
+                      type: number
+                    away_expectedGoals:
+                      type: number
+      responses:
+        '200':
+          description: Predicción realizada con éxito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prediction:
+                    type: string
+        '400':
+          description: Solicitud incorrecta
+          content:
+            application/json:
+              example:
+                message: "Faltan características o formato inválido"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al realizar la predicción"
+  /predicciones/actualizar:
+    post:
+      summary: Reentrenar y actualizar el modelo de predicción
+      responses:
+        '200':
+          description: Modelo actualizado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  classification_report:
+                    type: object
+                  confusion_matrix:
+                    type: array
+                    items:
+                      type: integer
+                  cross_val_mean:
+                    type: number
+        '403':
+          description: No autorizado
+          content:
+            application/json:
+              example:
+                message: "No tienes permiso para actualizar el modelo"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al reentrenar el modelo"
+
+
+         
