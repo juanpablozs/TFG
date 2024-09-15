@@ -56,8 +56,9 @@ El contenedor node_app automáticamente ejecutará un script llamado "importColl
 
 ### Opción 1: Usando Postman
 
-1. Abrir Postman e importando rutas de prueba, como por ejemplo:
+1. Abrir Postman e importando rutas de prueba. Estos son algunos de los ejemplos que se pueden llevar a cabo:
 
+- Usuarios:
     - **Registrar un usuario**:
         - **Método**: `POST`
         - **URL**: `http://localhost:3000/usuarios/registro`
@@ -72,10 +73,182 @@ El contenedor node_app automáticamente ejecutará un script llamado "importColl
         }
         ```
 
-    - Por defecto, el rol es el de usuario, pero es conveniente usar el token de un usuario admin para ver todas las funcionalidades que proporciona el sistema.     
+        - Por defecto, el rol es el de usuario, pero es conveniente usar el token de un usuario admin para ver todas las funcionalidades que proporciona el sistema.     
 
-    Equipos:
-    - Obtener todos los equipos:
-        - Método GET
+    - **Iniciar sesión**:
+        - **Método**: `POST`
+        - **URL**: `http://localhost:3000/usuarios/login`
+        - **Cuerpo (JSON)**:
 
+        ```json
+        {
+            "email": "juanpablo.zuritasoto@usp.ceu.es",
+            "password": "jp12345678",
+        }
+        ```
+        - Copiar el token proporcionado para usarlo más adelante en distintas funcionalidades
+
+- Equipos:
+    - **Obtener todos los equipos**:
+        - **Método**: `GET`
+        - **URL**: `http://localhost:3000/equipos`
+    
+    - **Obtener equipo por ID**:
+        - **Método**: `GET`
+        - **URL**: `http://localhost:3000/equipos/{_id}`
+        - Obtener el campo _id que proporciona MongoDB de cada objeto para buscarlo
+    
+- Predicciones:
+
+    - **Hacer una predicción en base a estadísticas**:
+        - **Método**: `POST`
+        - **URL**: `http://localhost:3000/predicciones`
+        - **Authorization**: (Type: Bearer Token): "introducir el token del login"
+        - **Cuerpo (JSON)**:
+
+        ```json
+        {
+            "features": {
+                "home_shotsOnGoal": 10,
+                "home_shotsOffGoal": 8,
+                "home_totalShots": 18,
+                "home_blockedShots": 4,
+                "home_shotsInsideBox": 12,
+                "home_shotsOutsideBox": 6,
+                "home_cornerKicks": 7,
+                "home_goalkeeperSaves": 5,
+                "home_totalPasses": 500,
+                "home_accuratePasses": 450,
+                "home_expectedGoals": 2.5,
+                "away_shotsOnGoal": 2,
+                "away_shotsOffGoal": 3,
+                "away_totalShots": 5,
+                "away_blockedShots": 1,
+                "away_shotsInsideBox": 3,
+                "away_shotsOutsideBox": 2,
+                "away_cornerKicks": 2,
+                "away_goalkeeperSaves": 4,
+                "away_totalPasses": 300,
+                "away_accuratePasses": 250,
+                "away_expectedGoals": 0.8
+            }
+        }
+        ```
+        - Este cuerpo ha de tener siempre el mismo formato para realizar las predicciones
+
+Se pueden experimentar más rutas y operaciones CRUD sobre las mismas dependiendo del tipo de usuario que las realice (anónimo, registrado o administrador).
+
+2. Enviar las solicitudes y observar las respuestas proporcionadas.
+
+### Opción 2: Usando la consola del navegador
+
+Si se opta por usar la consola del navegador, se pueden hacer las solicitudes con fetch de la siguiente manera:
+
+1. Abrir herramientas de desarrollo del navegador(F12 o Ctrl+Shift+I) y seleccionar la pestaña "Consola"
+
+2. Realizar solicitudes con operaciones CRUD usando fetch. Aquí se encuentran algunos ejemplos:
+
+- Registrar un usuario:
+
+```javascript
+fetch('http://localhost:3000/usuarios/registro', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    username: 'juanpablo',
+    email: 'juanpablo.zuritasoto@usp.ceu.es',
+    password: 'jp12345678'.
+    role: 'admin'
+  })
+})
+  .then(response => response.json())
+  .then(data => console.log('Registro exitoso:', data))
+  .catch(error => console.error('Error en el registro:', error));
+```
+
+- Iniciar sesión:
+
+```javascript
+fetch('http://localhost:3000/usuarios/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'juanpablo.zuritasoto@usp.ceu.es',
+    password: 'jp12345678'
+  })
+})
+  .then(response => response.json())
+  .then(data => {
+    console.log('Login exitoso:', data);
+    const token = data.token;
+    console.log('Token:', token);
+  })
+  .catch(error => console.error('Error en el login:', error));
+```
+Este código enviará la solicitud de inicio de sesión al servidor y se devolverá un token de autenticación, que se podrá utilizar en las solicitudes posteriores (como la predicción o acceder a rutas protegidas).
+
+
+- Predicción:
+
+```javascript
+const token = 'token_propocionado';
+
+fetch('http://localhost:3000/predicciones', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    features: {
+      home_shotsOnGoal: 10,
+      home_shotsOffGoal: 8,
+      home_totalShots: 18,
+      home_blockedShots: 4,
+      home_shotsInsideBox: 12,
+      home_shotsOutsideBox: 6,
+      home_cornerKicks: 7,
+      home_goalkeeperSaves: 5,
+      home_totalPasses: 500,
+      home_accuratePasses: 450,
+      home_expectedGoals: 2.5,
+      away_shotsOnGoal: 2,
+      away_shotsOffGoal: 3,
+      away_totalShots: 5,
+      away_blockedShots: 1,
+      away_shotsInsideBox: 3,
+      away_shotsOutsideBox: 2,
+      away_cornerKicks: 2,
+      away_goalkeeperSaves: 4,
+      away_totalPasses: 300,
+      away_accuratePasses: 250,
+      away_expectedGoals: 0.8
+    }
+  })
+})
+  .then(response => response.json())
+  .then(data => console.log('Predicción:', data))
+  .catch(error => console.error('Error en la predicción:', error));
+
+```
+
+
+## Solución de Problemas
+
+### Contenedor no se incia
+Si el contenedor no se iniciar correctamente, ejecutar los siguientes comandos para revisar los logs:
+
+- docker-compose logs
+
+### Verificar estado de los contenedores
+Para asegurarse que todos los contenedores están en ejecución:
+- docker ps
+
+### Detener todos los contenedores
+Para detener todos los contenedores:
+- docker-compose down
     
