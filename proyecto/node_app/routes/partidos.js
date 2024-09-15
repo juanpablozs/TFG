@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const Partido = require('../models/partido');
 const { authenticateToken, authorizeRoles } = require('../middleware/auth');
@@ -83,13 +84,18 @@ router.post('/', authenticateToken, authorizeRoles('admin'), async (req, res) =>
 
 router.get('/:id', async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'ID no válido' });
+    }
+    
     const partido = await Partido.findById(req.params.id).select('matchId date teams goals statistics');
     if (!partido) return res.status(404).json({ message: 'Partido no encontrado' });
+
     const partidoObject = partido.toObject();
     partidoObject.links = createLinks(req, partido._id);
     res.json(partidoObject);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: 'Error al obtener el partido' });
   }
 });
 

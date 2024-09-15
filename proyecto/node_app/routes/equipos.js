@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const Equipo = require('../models/equipo');
 const Jugador = require('../models/jugador');
@@ -78,8 +79,12 @@ router.post('/', authenticateToken, authorizeRoles('admin'), async (req, res) =>
 
 router.get('/:id', async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'ID no válido' });
+    }
     const equipo = await Equipo.findById(req.params.id).select('-national -venue.surface');
     if (!equipo) return res.status(404).json({ message: 'Equipo no encontrado' });
+
     const equipoObject = equipo.toObject();
     equipoObject.links = createLinks(req, equipo._id);
     res.json(equipoObject);
