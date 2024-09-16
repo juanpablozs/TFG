@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: API de Predicción de LaLiga
-  description: API para gestionar y predecir los resultados de los partidos de LaLiga.
+  title: API de LaLiga y predicción de partidos.
+  description: API para gestionar datos de LaLiga y predecir resultados en base a estadísticas.
   version: 1.0.0
 servers:
   - url: http://localhost:3000
@@ -133,19 +133,6 @@ components:
                     type: string
                   expectedGoals:
                     type: string
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    Prediccion:
-      type: object
-      properties:
-        equipoCasa:
-          type: string
-        equipoVisitante:
-          type: string
-        resultadoPrediccion:
-          type: string
         links:
           type: array
           items:
@@ -426,7 +413,7 @@ paths:
             application/json:
               example:
                 message: "Datos del partido no válidos"
-          '404':
+        '404':
           description: Partido no encontrado
           content:
             application/json:
@@ -494,38 +481,6 @@ paths:
             application/json:
               example:
                 message: "Error al obtener las estadísticas del partido"
-  /predicciones:
-    post:
-      summary: Obtener predicción para un partido
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                equipoCasa:
-                  type: string
-                equipoVisitante:
-                  type: string
-      responses:
-        '200':
-          description: Resultado de la predicción
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Prediccion'
-        '400':
-          description: Solicitud incorrecta
-          content:
-            application/json:
-              example:
-                message: "Datos de equipos no válidos"
-        '500':
-          description: Error interno del servidor
-          content:
-            application/json:
-              example:
-                message: "Error al obtener la predicción"
   /equipos:
     get:
       summary: Obtener todos los equipos
@@ -923,6 +878,7 @@ paths:
             application/json:
               example:
                 message: "Error al realizar la predicción"
+
   /predicciones/actualizar:
     post:
       summary: Reentrenar y actualizar el modelo de predicción
@@ -956,6 +912,4 @@ paths:
             application/json:
               example:
                 message: "Error al reentrenar el modelo"
-
-
          
