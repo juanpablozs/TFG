@@ -2,7 +2,7 @@
 
 ## Manual de Usuario:
 
-Este proyecto permite desplegar una API que ofrece información sobre equipos, jugadores y partidos de la LaLiga en la temporada 2023-2024, así  como un servicio de predicción de resultados de los partidos utilizando un servicio de Machine Learning. El proyecto podrá desplegarse de forma local mediante un gestor de contenedores (Docker Desktop) o bien está disponible a través de AWS, usando infraestructuras Cloud. 
+Este proyecto permite desplegar una API que ofrece información sobre equipos, jugadores y partidos de la LaLiga en la temporada 2023-2024, así  como un servicio de predicción de resultados de los partidos utilizando un servicio de Machine Learning. El proyecto podrá desplegarse de forma local mediante un gestor de contenedores (Docker Desktop), para mayor facilidad del tribunal, o bien está disponible a través de AWS, usando infraestructuras Cloud, que es lo que se ha indicado en la memoria del trabajo y como se mostrará en la defensa. El código de la rama "cloud" no varía salvo el archivo node_app/.env, que es distinto, de acorde a su modo de despliegue.
 
 Para probar el servicio se puede usar plataformas como Postman o la consola del navegador.
 
