@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: API de Predicción de LaLiga
-  description: API para gestionar y predecir los resultados de los partidos de LaLiga.
+  title: API de LaLiga y predicción de partidos.
+  description: API para gestionar datos de LaLiga y predecir resultados en base a estadísticas.
   version: 1.0.0
 servers:
   - url: http://localhost:3000
@@ -19,6 +19,8 @@ components:
         email:
           type: string
         password:
+          type: string
+        role:
           type: string
         links:
           type: array
@@ -137,19 +139,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-    Prediccion:
-      type: object
-      properties:
-        equipoCasa:
-          type: string
-        equipoVisitante:
-          type: string
-        resultadoPrediccion:
-          type: string
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
     Equipo:
       type: object
       required:
@@ -203,7 +192,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-
     Jugador:
       type: object
       required:
@@ -291,6 +279,7 @@ paths:
             application/json:
               example:
                 message: "Error al registrar el usuario"
+              
   /usuarios/login:
     post:
       summary: Iniciar sesión de usuario
@@ -329,6 +318,183 @@ paths:
             application/json:
               example:
                 message: "Error al iniciar sesión del usuario"
+
+  /usuarios/recuperar:
+    post:
+      summary: Enviar correo de recuperación de contraseña
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        '200':
+          description: Correo de recuperación enviado
+          content:
+            application/json:
+              example:
+                message: "Correo de recuperación enviado"
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              example:
+                message: "Usuario no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al enviar el correo de recuperación"
+              
+  /usuarios/reset/{token}:
+    post:
+      summary: Restablecer la contraseña con un token de recuperación
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Contraseña actualizada exitosamente
+          content:
+            application/json:
+              example:
+                message: "Contraseña actualizada correctamente"
+        '400':
+          description: Token inválido o expirado
+          content:
+            application/json:
+              example:
+                message: "Token inválido o expirado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al restablecer la contraseña"
+
+  /usuarios/{id}:
+    get:
+      summary: Obtener los datos de un usuario por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Datos del usuario obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+        '403':
+          description: No tienes permiso para ver este usuario
+          content:
+            application/json:
+              example:
+                message: "No tienes permiso para ver este usuario"
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              example:
+                message: "Usuario no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al obtener el usuario"
+              
+    put:
+      summary: Actualizar los datos de un usuario por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+      responses:
+        '200':
+          description: Usuario actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+        '403':
+          description: No tienes permiso para actualizar este usuario
+          content:
+            application/json:
+              example:
+                message: "No tienes permiso para actualizar este usuario"
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              example:
+                message: "Usuario no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al actualizar el usuario"
+
+    delete:
+      summary: Eliminar un usuario por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Usuario eliminado exitosamente
+          content:
+            application/json:
+              example:
+                message: "Usuario eliminado correctamente"
+        '403':
+          description: No tienes permiso para eliminar este usuario
+          content:
+            application/json:
+              example:
+                message: "No tienes permiso para eliminar este usuario"
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              example:
+                message: "Usuario no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al eliminar el usuario"
+
   /partidos:
     get:
       summary: Obtener todos los partidos
@@ -495,38 +661,6 @@ paths:
             application/json:
               example:
                 message: "Error al obtener las estadísticas del partido"
-  /predicciones:
-    post:
-      summary: Obtener predicción para un partido
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                equipoCasa:
-                  type: string
-                equipoVisitante:
-                  type: string
-      responses:
-        '200':
-          description: Resultado de la predicción
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Prediccion'
-        '400':
-          description: Solicitud incorrecta
-          content:
-            application/json:
-              example:
-                message: "Datos de equipos no válidos"
-        '500':
-          description: Error interno del servidor
-          content:
-            application/json:
-              example:
-                message: "Error al obtener la predicción"
   /equipos:
     get:
       summary: Obtener todos los equipos
@@ -823,3 +957,139 @@ paths:
             application/json:
               example:
                 message: "Error al eliminar el jugador"
+  /predicciones:
+    post:
+      summary: Realizar una predicción de partido
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                features:
+                  type: object
+                  required:
+                    - home_shotsOnGoal
+                    - home_shotsOffGoal
+                    - home_totalShots
+                    - home_blockedShots
+                    - home_shotsInsideBox
+                    - home_shotsOutsideBox
+                    - home_cornerKicks
+                    - home_goalkeeperSaves
+                    - home_totalPasses
+                    - home_accuratePasses
+                    - home_expectedGoals
+                    - away_shotsOnGoal
+                    - away_shotsOffGoal
+                    - away_totalShots
+                    - away_blockedShots
+                    - away_shotsInsideBox
+                    - away_shotsOutsideBox
+                    - away_cornerKicks
+                    - away_goalkeeperSaves
+                    - away_totalPasses
+                    - away_accuratePasses
+                    - away_expectedGoals
+                  properties:
+                    home_shotsOnGoal:
+                      type: number
+                    home_shotsOffGoal:
+                      type: number
+                    home_totalShots:
+                      type: number
+                    home_blockedShots:
+                      type: number
+                    home_shotsInsideBox:
+                      type: number
+                    home_shotsOutsideBox:
+                      type: number
+                    home_cornerKicks:
+                      type: number
+                    home_goalkeeperSaves:
+                      type: number
+                    home_totalPasses:
+                      type: number
+                    home_accuratePasses:
+                      type: number
+                    home_expectedGoals:
+                      type: number
+                    away_shotsOnGoal:
+                      type: number
+                    away_shotsOffGoal:
+                      type: number
+                    away_totalShots:
+                      type: number
+                    away_blockedShots:
+                      type: number
+                    away_shotsInsideBox:
+                      type: number
+                    away_shotsOutsideBox:
+                      type: number
+                    away_cornerKicks:
+                      type: number
+                    away_goalkeeperSaves:
+                      type: number
+                    away_totalPasses:
+                      type: number
+                    away_accuratePasses:
+                      type: number
+                    away_expectedGoals:
+                      type: number
+      responses:
+        '200':
+          description: Predicción realizada con éxito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prediction:
+                    type: string
+        '400':
+          description: Solicitud incorrecta
+          content:
+            application/json:
+              example:
+                message: "Faltan características o formato inválido"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al realizar la predicción"
+
+  /predicciones/actualizar:
+    post:
+      summary: Reentrenar y actualizar el modelo de predicción
+      responses:
+        '200':
+          description: Modelo actualizado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  classification_report:
+                    type: object
+                  confusion_matrix:
+                    type: array
+                    items:
+                      type: integer
+                  cross_val_mean:
+                    type: number
+        '403':
+          description: No autorizado
+          content:
+            application/json:
+              example:
+                message: "No tienes permiso para actualizar el modelo"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al reentrenar el modelo"
+         

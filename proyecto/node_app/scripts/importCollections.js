@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const mongoUri = process.env.MONGO_URI;
@@ -13,8 +13,15 @@ async function importCollection(filePath, collectionName) {
 
     const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 
+    const updatedData = data.map(doc => {
+      if (doc._id) {
+        doc._id = new ObjectId(doc._id);
+      }
+      return doc;
+    });
+
     await collection.deleteMany({});
-    await collection.insertMany(data);
+    await collection.insertMany(updatedData);
     console.log(`Imported ${filePath} to ${collectionName}`);
   } catch (error) {
     console.error(`Error importing ${filePath}:`, error);
