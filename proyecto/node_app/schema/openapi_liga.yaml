@@ -20,6 +20,8 @@ components:
           type: string
         password:
           type: string
+        role:
+          type: string
         links:
           type: array
           items:
@@ -277,6 +279,7 @@ paths:
             application/json:
               example:
                 message: "Error al registrar el usuario"
+              
   /usuarios/login:
     post:
       summary: Iniciar sesión de usuario
@@ -315,6 +318,183 @@ paths:
             application/json:
               example:
                 message: "Error al iniciar sesión del usuario"
+
+  /usuarios/recuperar:
+    post:
+      summary: Enviar correo de recuperación de contraseña
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        '200':
+          description: Correo de recuperación enviado
+          content:
+            application/json:
+              example:
+                message: "Correo de recuperación enviado"
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              example:
+                message: "Usuario no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al enviar el correo de recuperación"
+              
+  /usuarios/reset/{token}:
+    post:
+      summary: Restablecer la contraseña con un token de recuperación
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Contraseña actualizada exitosamente
+          content:
+            application/json:
+              example:
+                message: "Contraseña actualizada correctamente"
+        '400':
+          description: Token inválido o expirado
+          content:
+            application/json:
+              example:
+                message: "Token inválido o expirado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al restablecer la contraseña"
+
+  /usuarios/{id}:
+    get:
+      summary: Obtener los datos de un usuario por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Datos del usuario obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+        '403':
+          description: No tienes permiso para ver este usuario
+          content:
+            application/json:
+              example:
+                message: "No tienes permiso para ver este usuario"
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              example:
+                message: "Usuario no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al obtener el usuario"
+              
+    put:
+      summary: Actualizar los datos de un usuario por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+      responses:
+        '200':
+          description: Usuario actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+        '403':
+          description: No tienes permiso para actualizar este usuario
+          content:
+            application/json:
+              example:
+                message: "No tienes permiso para actualizar este usuario"
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              example:
+                message: "Usuario no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al actualizar el usuario"
+
+    delete:
+      summary: Eliminar un usuario por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Usuario eliminado exitosamente
+          content:
+            application/json:
+              example:
+                message: "Usuario eliminado correctamente"
+        '403':
+          description: No tienes permiso para eliminar este usuario
+          content:
+            application/json:
+              example:
+                message: "No tienes permiso para eliminar este usuario"
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              example:
+                message: "Usuario no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              example:
+                message: "Error al eliminar el usuario"
+
   /partidos:
     get:
       summary: Obtener todos los partidos
